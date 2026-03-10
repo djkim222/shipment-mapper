@@ -402,9 +402,9 @@ const BUILTINS = [
 
   {id:'sabang',name:'사방넷',builtIn:true,mode:'generate',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
-    generate:{dlHeaderRow:2,dlOrderKeyCol:'사방넷주문번호',
+    generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호(사방넷)',
       outputCols:[
-        {header:'사방넷주문번호',source:'download',fromCol:'사방넷주문번호'},
+        {header:'사방넷주문번호',source:'download',fromCol:'주문번호(사방넷)'},
         {header:'운송장번호',source:'tracking'},
         {header:'공란',source:'empty'},
         {header:'배송희망일',source:'empty'},
