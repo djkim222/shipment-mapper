@@ -305,12 +305,12 @@ const BUILTINS = [
       fillCols:[{col:'택배사코드',source:'fixed',value:'8'},{col:'송장번호',source:'tracking'}]}},
 
   {id:'wconcept',name:'W컨셉',builtIn:true,mode:'fill',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     fill:{headerRow:7,orderKeyCol:'주문번호',
       fillCols:[{col:'송장번호',source:'tracking'},{col:'택배사코드',source:'fixed',value:'6'}]}},
 
   {id:'kt_alpha',name:'KT알파쇼핑',builtIn:true,mode:'fill',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     fill:{headerRow:3,orderKeyCol:'주문번호',
       fillCols:[
         {col:'택배사코드',source:'fixed',value:'⚠️확인필요'},
@@ -318,7 +318,7 @@ const BUILTINS = [
         {col:'운송장번호',source:'tracking'}]}},
 
   {id:'cm29',name:'29CM',builtIn:true,mode:'fill',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     fill:{headerRow:1,orderKeyCol:'주문번호',
       fillCols:[
         {col:'택배사코드',source:'fixed',value:'⚠️확인필요'},
@@ -327,7 +327,7 @@ const BUILTINS = [
 
   // ── GENERATE MODE ──
   {id:'smartstore',name:'네이버 스마트스토어',builtIn:true,mode:'generate',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'상품주문번호',
       outputCols:[
         {header:'상품주문번호',source:'download',fromCol:'상품주문번호'},
@@ -336,14 +336,14 @@ const BUILTINS = [
         {header:'송장번호',source:'tracking'}]}},
 
   {id:'zigzag',name:'지그재그',builtIn:true,mode:'generate',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'상품주문번호',
       outputCols:[
         {header:'상품주문번호',source:'download',fromCol:'상품주문번호'},
         {header:'송장번호',source:'tracking'}]}},
 
   {id:'ejaneru',name:'이제너두',builtIn:true,mode:'generate',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
       outputCols:[
         {header:'주문번호',source:'download',fromCol:'주문번호'},
@@ -353,7 +353,7 @@ const BUILTINS = [
         {header:'송장번호',source:'tracking'}]}},
 
   {id:'ssg',name:'신세계SSG',builtIn:true,mode:'generate',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'배송번호',
       outputCols:[
         {header:'no',source:'rownum'},
@@ -364,7 +364,7 @@ const BUILTINS = [
         {header:'중량정보',source:'empty'}]}},
 
   {id:'hyundai',name:'현대홈쇼핑',builtIn:true,mode:'generate',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
       outputCols:[
         {header:'주문번호',source:'download',fromCol:'주문번호'},
@@ -373,7 +373,7 @@ const BUILTINS = [
         {header:'운송장번호',source:'tracking'}]}},
 
   {id:'samsung',name:'삼성카드',builtIn:true,mode:'generate',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
       outputCols:[
         {header:'주문번호',source:'download',fromCol:'주문번호'},
@@ -382,7 +382,7 @@ const BUILTINS = [
         {header:'송장번호',source:'tracking'}]}},
 
   {id:'eziwell',name:'이지웰',builtIn:true,mode:'generate',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
       outputCols:[
         {header:'주문번호',source:'download',fromCol:'주문번호'},
@@ -392,7 +392,7 @@ const BUILTINS = [
         {header:'협력사코드',source:'fixed',value:'10055576'}]}},
 
   {id:'cjonst',name:'CJ온스타일',builtIn:true,mode:'generate',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
       outputCols:[
         {header:'인수자',source:'download',fromCol:'인수자'},
@@ -401,7 +401,7 @@ const BUILTINS = [
         {header:'운송장번호',source:'tracking'}]}},
 
   {id:'sabang',name:'사방넷',builtIn:true,mode:'generate',
-    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:2,dlOrderKeyCol:'사방넷주문번호',
       outputCols:[
         {header:'사방넷주문번호',source:'download',fromCol:'사방넷주문번호'},
@@ -758,7 +758,7 @@ function newProfile() {
   edId = null;
   openEd({
     id: '', name: '', mode: 'fill',
-    logistics: {orderKeyCol:'[주문번호]', trackingCol:'[운송장번호]'},
+    logistics: {orderKeyCol:'[주문번호]', trackingCol:'송장번호'},
     fill: {headerRow:1, orderKeyCol:'주문번호',
       fillCols:[{col:'송장번호',source:'tracking'},{col:'택배사코드',source:'fixed',value:''}]},
     generate: {dlHeaderRow:1, dlOrderKeyCol:'주문번호',
