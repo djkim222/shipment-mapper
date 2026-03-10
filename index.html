@@ -1,1041 +1,1003 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚚 송장번호 자동 매핑 도구</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Malgun Gothic', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f0f2f5;
-            color: #333;
-            min-height: 100vh;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>송장번호 매핑 도구 v2.0</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:13px;background:#f0f2f5;color:#333;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+header{background:#1a237e;color:#fff;padding:10px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+header h1{font-size:16px;font-weight:bold}
+.ver{background:rgba(255,255,255,.25);border-radius:10px;padding:2px 9px;font-size:11px}
+.layout{display:flex;flex:1;overflow:hidden}
 
-        /* ── Header ── */
-        .header {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: white;
-            padding: 18px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.3);
-        }
-        .header h1 { font-size: 1.3rem; font-weight: 700; }
-        .header .subtitle { font-size: 0.77rem; opacity: 0.65; margin-top: 2px; }
-        .nav-btns { display: flex; gap: 8px; }
-        .nav-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white; padding: 8px 16px;
-            border-radius: 7px; cursor: pointer; font-size: 0.85rem;
-            transition: background 0.2s;
-        }
-        .nav-btn:hover { background: rgba(255,255,255,0.2); }
-        .nav-btn.active { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); }
+/* sidebar */
+#sidebar{width:210px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sb-title{padding:9px 12px;font-size:11px;font-weight:bold;color:#666;background:#f7f7f7;border-bottom:1px solid #eee;text-transform:uppercase;letter-spacing:.3px}
+.profile-list{flex:1;overflow-y:auto}
+.pi{padding:8px 10px;cursor:pointer;border-bottom:1px solid #f2f2f2;display:flex;align-items:center;gap:5px;transition:background .1s}
+.pi:hover{background:#f0f4ff}
+.pi.sel{background:#e8edf8;border-left:3px solid #1a237e}
+.pi .pname{flex:1;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mbadge{font-size:10px;padding:1px 5px;border-radius:8px;flex-shrink:0}
+.bf{background:#e3f2fd;color:#1565c0}
+.bg{background:#e8f5e9;color:#2e7d32}
+.pi .edb{font-size:11px;padding:3px 5px;border:none;background:none;cursor:pointer;color:#bbb}
+.pi .edb:hover{color:#1a237e}
+.sb-foot{padding:8px 10px;border-top:1px solid #eee;display:flex;flex-direction:column;gap:5px}
+.sb-foot button,.sb-foot label{display:block;width:100%;text-align:center;padding:6px;font-size:12px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#fff;color:#444}
+.sb-foot button:hover,.sb-foot label:hover{background:#f0f0f0}
+#importFI{display:none}
 
-        /* ── Layout ── */
-        .container { max-width: 860px; margin: 0 auto; padding: 28px 18px; }
-        .page { display: none; }
-        .page.active { display: block; }
+/* main */
+#content{flex:1;padding:14px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:11px}
+.no-sel{text-align:center;padding:60px 20px;color:#bbb}
+.no-sel .big{font-size:36px;margin-bottom:10px}
+.no-sel p{font-size:15px;color:#aaa}
+#workArea{display:flex;flex-direction:column;gap:11px}
 
-        /* ── Card ── */
-        .card {
-            background: white; border-radius: 12px;
-            padding: 22px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-            margin-bottom: 18px;
-        }
-        .card-title {
-            font-size: 1rem; font-weight: 700;
-            color: #1a1a2e; margin-bottom: 16px;
-            display: flex; align-items: center; gap: 8px;
-        }
+/* profile info */
+#profInfo{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:11px 14px}
+.pi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.pi-name{font-size:15px;font-weight:bold}
+.btn-edit{font-size:12px;padding:4px 11px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer}
+.btn-edit:hover{background:#f0f0f0}
+.info-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.ii{display:flex;gap:5px;align-items:center;font-size:12px}
+.il{color:#999}
+.iv{font-weight:bold}
+.warn-tag{font-size:11px;color:#e65100;font-weight:bold;background:#fff3e0;padding:2px 8px;border-radius:8px}
 
-        /* ── Select ── */
-        .profile-row { display: flex; gap: 10px; align-items: center; }
-        select {
-            flex: 1; padding: 10px 36px 10px 13px;
-            border: 1.5px solid #ddd; border-radius: 8px;
-            font-size: 0.93rem; color: #333; background: white;
-            cursor: pointer; appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath fill='%23888' d='M5 7L0 0h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 13px center;
-        }
-        select:focus { outline: none; border-color: #4361ee; }
+/* drop zones */
+.fzones{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.dz{background:#fff;border:2px dashed #ccc;border-radius:8px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .15s}
+.dz:hover,.dz.drag-over{border-color:#1a237e;background:#f0f4ff}
+.dz.has-file{border-color:#43a047;background:#f1f8e9;border-style:solid}
+.dz .zi{font-size:26px;margin-bottom:5px}
+.dz .zt{font-weight:bold;font-size:13px;color:#444}
+.dz .zs{font-size:11px;color:#999;margin-top:3px}
+.dz .zfn{font-size:12px;color:#2e7d32;font-weight:bold;margin-top:6px;word-break:break-all}
+.dz input[type=file]{display:none}
 
-        /* ── Upload ── */
-        .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        .upload-label-text {
-            font-size: 0.77rem; font-weight: 700; color: #888;
-            text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 7px;
-        }
-        .upload-area {
-            border: 2px dashed #cdd5de; border-radius: 10px;
-            padding: 22px 16px; text-align: center; cursor: pointer;
-            transition: all 0.2s; position: relative; background: #fafbff; min-height: 120px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .upload-area:hover { border-color: #4361ee; background: #eef1ff; }
-        .upload-area.drag-over { border-color: #4361ee; background: #e4e9ff; border-style: solid; }
-        .upload-area.has-file { border-color: #27ae60; background: #f0fff8; border-style: solid; }
-        .upload-area input[type="file"] {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
-        }
-        .upload-icon { font-size: 1.8rem; margin-bottom: 6px; }
-        .upload-hint { font-size: 0.83rem; color: #888; }
-        .upload-hint strong { color: #4361ee; }
-        .file-name { font-size: 0.82rem; color: #27ae60; font-weight: 600; margin-top: 6px; word-break: break-all; }
+/* options */
+.opts{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:9px 14px;display:flex;align-items:center;gap:18px}
+.tgl{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px}
+.tgl input{width:16px;height:16px;cursor:pointer}
 
-        /* ── Buttons ── */
-        .btn {
-            padding: 11px 22px; border: none; border-radius: 8px;
-            font-size: 0.92rem; font-weight: 700; cursor: pointer;
-            transition: all 0.2s; display: inline-flex; align-items: center; gap: 7px;
-        }
-        .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-        .btn-primary {
-            background: linear-gradient(135deg, #4361ee, #3730c9);
-            color: white; width: 100%; justify-content: center;
-        }
-        .btn-primary:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(67,97,238,0.4); }
-        .btn-success { background: linear-gradient(135deg, #27ae60, #219a52); color: white; width: 100%; justify-content: center; }
-        .btn-success:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(39,174,96,0.4); }
-        .btn-outline {
-            background: transparent; border: 1.5px solid #ddd; color: #555;
-            padding: 8px 15px; font-size: 0.83rem;
-        }
-        .btn-outline:hover { border-color: #4361ee; color: #4361ee; background: #eef1ff; }
-        .btn-danger { background: #e74c3c; color: white; padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; }
-        .btn-danger:hover { background: #c0392b; }
-        .btn-sm { padding: 7px 14px; font-size: 0.82rem; }
-        .btn-group { display: flex; gap: 6px; }
+/* error */
+#errMsg{background:#ffebee;border:1px solid #ef9a9a;border-radius:6px;padding:9px 14px;color:#c62828;font-size:13px;display:none;white-space:pre-wrap}
 
-        /* ── Spinner ── */
-        .spinner {
-            display: none; width: 18px; height: 18px;
-            border: 2.5px solid rgba(255,255,255,0.35); border-top-color: white;
-            border-radius: 50%; animation: spin 0.7s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+/* run button */
+#runBtn{padding:12px;background:#1a237e;color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;font-weight:bold;width:100%}
+#runBtn:hover{background:#283593}
 
-        /* ── Alert ── */
-        .alert {
-            padding: 11px 15px; border-radius: 8px;
-            font-size: 0.85rem; margin-bottom: 14px;
-            display: flex; align-items: flex-start; gap: 9px; line-height: 1.5;
-        }
-        .alert-info { background: #e8f4fd; color: #1565c0; border: 1px solid #bbdefb; }
-        .alert-success { background: #e8f5e9; color: #256029; border: 1px solid #c8e6c9; }
-        .alert-warning { background: #fff8e1; color: #e65100; border: 1px solid #ffe082; }
-        .alert-error { background: #fce4ec; color: #b71c1c; border: 1px solid #f8bbd0; }
+/* results */
+#results{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:13px 15px;display:none}
+.sec-title{font-size:11px;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.sb{text-align:center;padding:8px 18px;border-radius:6px;min-width:80px}
+.sb.tot{background:#f5f5f5}
+.sb.map{background:#e8f5e9}
+.sb.unm{background:#fff3e0}
+.sv{font-size:24px;font-weight:bold}
+.sl{font-size:11px;color:#666;margin-top:2px}
+.rmsg{font-size:12px;color:#666;margin-top:5px}
 
-        /* ── Result ── */
-        .result-box { background: #f7f9fc; border-radius: 10px; padding: 18px; display: none; margin-top: 14px; }
-        .result-box.show { display: block; }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-        .stat-card { background: white; border-radius: 9px; padding: 14px; text-align: center; border: 1.5px solid #e8eaed; }
-        .stat-value { font-size: 2rem; font-weight: 800; }
-        .stat-label { font-size: 0.73rem; color: #999; margin-top: 3px; }
-        .stat-total .stat-value { color: #4361ee; }
-        .stat-ok .stat-value { color: #27ae60; }
-        .stat-warn .stat-value { color: #e67e22; }
-        .unmapped-box { background: white; border: 1.5px solid #f39c12; border-radius: 8px; padding: 12px; margin-top: 10px; max-height: 180px; overflow-y: auto; }
-        .unmapped-title { font-size: 0.82rem; font-weight: 700; color: #e67e22; margin-bottom: 7px; }
-        .unmapped-item { font-size: 0.8rem; color: #555; padding: 3px 0; border-bottom: 1px solid #f5f5f5; }
-        .unmapped-item:last-child { border-bottom: none; }
+/* download btn */
+#dlBtn{padding:11px;background:#2e7d32;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer;font-weight:bold;width:100%;display:none}
+#dlBtn:hover{background:#388e3c}
 
-        /* ── Profile Table ── */
-        .profile-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-        .profile-table th {
-            background: #f5f7fa; padding: 10px 13px;
-            text-align: left; font-size: 0.77rem; color: #777; font-weight: 700;
-            border-bottom: 2px solid #eaecef; white-space: nowrap;
-        }
-        .profile-table td { padding: 11px 13px; border-bottom: 1px solid #f0f2f5; vertical-align: middle; }
-        .profile-table tr:last-child td { border-bottom: none; }
-        .profile-table tr:hover td { background: #fafbff; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; }
-        .badge-default { background: #fff3cd; color: #856404; }
-        .badge-custom { background: #e8edff; color: #4361ee; }
-        code { background: #f0f2f5; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; color: #e83e8c; }
-
-        /* ── Modal ── */
-        .modal-overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.52); z-index: 1000;
-            overflow-y: auto; padding: 30px 16px;
-        }
-        .modal-overlay.show { display: flex; align-items: flex-start; justify-content: center; }
-        .modal {
-            background: white; border-radius: 14px; width: 100%; max-width: 580px;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.28);
-        }
-        .modal-header {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: white; padding: 18px 22px;
-            display: flex; align-items: center; justify-content: space-between;
-            border-radius: 14px 14px 0 0;
-        }
-        .modal-header h2 { font-size: 1.05rem; font-weight: 700; }
-        .modal-close {
-            background: rgba(255,255,255,0.12); border: none;
-            color: white; width: 30px; height: 30px; border-radius: 6px;
-            cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
-        }
-        .modal-close:hover { background: rgba(255,255,255,0.25); }
-        .modal-body { padding: 22px; max-height: 68vh; overflow-y: auto; }
-        .modal-footer { padding: 14px 22px; border-top: 1px solid #f0f0f0; display: flex; gap: 8px; justify-content: flex-end; }
-
-        /* ── Form ── */
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; font-size: 0.83rem; font-weight: 700; color: #555; margin-bottom: 5px; }
-        .required { color: #e74c3c; margin-left: 2px; }
-        .form-input {
-            width: 100%; padding: 9px 13px;
-            border: 1.5px solid #ddd; border-radius: 7px;
-            font-size: 0.88rem; color: #333; transition: border-color 0.2s;
-        }
-        .form-input:focus { outline: none; border-color: #4361ee; }
-        .form-hint { font-size: 0.75rem; color: #aaa; margin-top: 4px; }
-        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .divider { border: none; border-top: 1.5px solid #f0f0f0; margin: 18px 0; }
-        .section-label { font-size: 0.77rem; font-weight: 800; color: #aaa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
-
-        /* ── Toggle ── */
-        .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .toggle-text { font-size: 0.87rem; font-weight: 600; flex: 1; }
-        .toggle { position: relative; width: 42px; height: 22px; flex-shrink: 0; }
-        .toggle input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 22px; transition: 0.25s; }
-        .toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.25s; }
-        .toggle input:checked + .toggle-slider { background: #4361ee; }
-        .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
-        .toggle-box { background: #f8f9fc; border-radius: 8px; padding: 13px; margin-bottom: 14px; }
-
-        /* ── Headers Preview ── */
-        .headers-box { background: #f8f9fc; border-radius: 8px; padding: 12px; margin-top: 8px; }
-        .headers-box strong { font-size: 0.8rem; color: #555; display: block; margin-bottom: 7px; }
-        .tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
-        .tag {
-            background: #e8edff; color: #4361ee; padding: 3px 9px;
-            border-radius: 5px; font-size: 0.76rem; cursor: pointer; transition: background 0.15s;
-        }
-        .tag:hover { background: #d0d9ff; }
-        .tag-hint { font-size: 0.73rem; color: #bbb; margin-top: 6px; }
-
-        /* ── Profile info bar ── */
-        .profile-info { margin-top: 10px; }
-
-        /* ── Responsive ── */
-        @media (max-width: 580px) {
-            .upload-grid { grid-template-columns: 1fr; }
-            .row-2 { grid-template-columns: 1fr; }
-            .stats-grid { gap: 7px; }
-            .stat-value { font-size: 1.5rem; }
-        }
-    </style>
+/* modal */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:#fff;border-radius:8px;width:100%;max-width:730px;max-height:92vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);display:flex;flex-direction:column}
+.mh{padding:13px 18px;background:#1a237e;color:#fff;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.mh h2{font-size:15px}
+.mc{font-size:20px;background:none;border:none;color:#fff;cursor:pointer;line-height:1}
+.mb{padding:18px;display:flex;flex-direction:column;gap:13px}
+.mf{padding:11px 18px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:12px;font-weight:bold;color:#555}
+.fg input,.fg select{padding:6px 9px;border:1px solid #ddd;border-radius:4px;font-size:13px}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.ht{font-size:11px;color:#999;margin-top:2px}
+.mtabs{display:flex;border:1px solid #ddd;border-radius:4px;overflow:hidden}
+.mtab{flex:1;padding:8px 6px;text-align:center;cursor:pointer;font-size:12px;background:#f5f5f5;border:none;transition:background .1s}
+.mtab.act{background:#1a237e;color:#fff;font-weight:bold}
+.ct{width:100%;border-collapse:collapse;font-size:12px}
+.ct th{background:#f5f5f5;padding:5px 7px;text-align:left;border:1px solid #ddd;font-size:11px}
+.ct td{padding:3px 5px;border:1px solid #eee;vertical-align:middle}
+.ct td input,.ct td select{width:100%;padding:4px 5px;border:1px solid #ddd;border-radius:3px;font-size:12px}
+.delbtn{background:#ffebee;border:none;border-radius:3px;padding:2px 8px;cursor:pointer;color:#c62828;font-size:11px}
+.delbtn:hover{background:#ffcdd2}
+.addcol{margin-top:6px;padding:5px 12px;background:#e3f2fd;border:1px solid #90caf9;border-radius:4px;cursor:pointer;font-size:12px;color:#1565c0}
+.addcol:hover{background:#bbdefb}
+.btn-p{padding:8px 20px;background:#1a237e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px}
+.btn-p:hover{background:#283593}
+.btn-s{padding:8px 18px;background:#fff;color:#333;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:13px}
+.btn-s:hover{background:#f5f5f5}
+.btn-d{padding:8px 18px;background:#fff;color:#c62828;border:1px solid #ef9a9a;border-radius:4px;cursor:pointer;font-size:13px}
+.btn-d:hover{background:#ffebee}
+</style>
 </head>
 <body>
 
-<!-- ══════════ HEADER ══════════ -->
-<div class="header">
-    <div>
-        <h1>🚚 송장번호 자동 매핑 도구</h1>
-        <div class="subtitle">물류센터 파일 → 거래처 주문파일 자동 매핑 | 20+ 거래처 프로필 지원</div>
+<header>
+  <span style="font-size:22px">📦</span>
+  <h1>송장번호 매핑 도구</h1>
+  <span class="ver">v2.0</span>
+</header>
+
+<div class="layout">
+  <aside id="sidebar">
+    <div class="sb-title">거래처 프로필</div>
+    <div class="profile-list" id="profileList"></div>
+    <div class="sb-foot">
+      <button onclick="newProfile()">+ 새 프로필 추가</button>
+      <button onclick="exportProfiles()">📤 프로필 내보내기</button>
+      <label for="importFI">📥 프로필 가져오기</label>
+      <input type="file" id="importFI" accept=".json" onchange="importProfiles(event)">
     </div>
-    <div class="nav-btns">
-        <button class="nav-btn active" id="btnNav-process" onclick="showPage('process')">📋 매핑 처리</button>
-        <button class="nav-btn" id="btnNav-profiles" onclick="showPage('profiles')">⚙️ 프로필 관리</button>
+  </aside>
+
+  <main id="content">
+    <div id="noSelMsg" class="no-sel">
+      <div class="big">👈</div>
+      <p>거래처를 선택하세요</p>
+      <br>
+      <small>왼쪽 목록에서 거래처를 클릭하면 매핑 작업을 시작할 수 있습니다.</small>
     </div>
+
+    <div id="workArea" style="display:none">
+      <div id="profInfo">
+        <div class="pi-top">
+          <div class="pi-name" id="profName">-</div>
+          <button class="btn-edit" onclick="editProfile(selId)">✏️ 프로필 수정</button>
+        </div>
+        <div class="info-row" id="profInfoBody"></div>
+      </div>
+
+      <div class="fzones">
+        <div id="logZone" class="dz"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleDrop(event,'log')"
+          onclick="document.getElementById('logInput').click()">
+          <div class="zi">🏭</div>
+          <div class="zt">물류센터 송장 파일</div>
+          <div class="zs">씨지에스 파일 드래그&드롭 또는 클릭</div>
+          <div class="zfn" id="logFn"></div>
+          <input type="file" id="logInput" accept=".xlsx,.xls" onchange="handleFI(event,'log')">
+        </div>
+        <div id="dlZone" class="dz"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleDrop(event,'dl')"
+          onclick="document.getElementById('dlInput').click()">
+          <div class="zi">🛒</div>
+          <div class="zt">거래처 주문내역 파일</div>
+          <div class="zs" id="dlZoneSub">주문내역 다운로드 파일</div>
+          <div class="zfn" id="dlFn"></div>
+          <input type="file" id="dlInput" accept=".xlsx,.xls" onchange="handleFI(event,'dl')">
+        </div>
+      </div>
+
+      <div class="opts">
+        <label class="tgl">
+          <input type="checkbox" id="rmUnmapped" checked>
+          미매핑 주문 결과에서 제거 (아직 출고 안 된 주문 제외)
+        </label>
+      </div>
+
+      <div id="errMsg"></div>
+      <button id="runBtn" onclick="runProcess()">🚀 매핑 실행</button>
+
+      <div id="results">
+        <div class="sec-title">처리 결과</div>
+        <div class="stats" id="statsBox"></div>
+        <div class="rmsg" id="rmsgEl"></div>
+      </div>
+
+      <button id="dlBtn" onclick="doDownload()">📥 결과 파일 다운로드</button>
+    </div>
+  </main>
 </div>
 
-<!-- ══════════ PAGE: PROCESS ══════════ -->
-<div class="page active" id="page-process">
-    <div class="container">
-
-        <!-- Step 1 -->
-        <div class="card">
-            <div class="card-title">① 거래처 선택</div>
-            <div class="profile-row">
-                <select id="profileSelect" onchange="onProfileChange()">
-                    <option value="">-- 거래처를 선택하세요 --</option>
-                </select>
-                <button class="btn btn-outline" onclick="showPage('profiles')">⚙️ 관리</button>
-            </div>
-            <div class="profile-info" id="profileInfoBar"></div>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="card">
-            <div class="card-title">② 파일 업로드</div>
-            <div class="upload-grid">
-                <div>
-                    <div class="upload-label-text">📦 물류센터 파일 (씨지에스)</div>
-                    <div class="upload-area" id="area-logistics"
-                         ondragover="onDragOver(event,'area-logistics')"
-                         ondragleave="onDragLeave(event,'area-logistics')"
-                         ondrop="onDrop(event,'logistics')">
-                        <input type="file" accept=".xlsx,.xls,.csv" onchange="onFileSelect(event,'logistics')">
-                        <div class="upload-icon">📄</div>
-                        <div class="upload-hint">클릭 또는 <strong>드래그앤드롭</strong></div>
-                        <div class="upload-hint" style="font-size:0.75rem; margin-top:3px;">.xlsx / .xls / .csv</div>
-                        <div class="file-name" id="name-logistics" style="display:none;"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="upload-label-text">🛒 거래처 주문내역 파일</div>
-                    <div class="upload-area" id="area-marketplace"
-                         ondragover="onDragOver(event,'area-marketplace')"
-                         ondragleave="onDragLeave(event,'area-marketplace')"
-                         ondrop="onDrop(event,'marketplace')">
-                        <input type="file" accept=".xlsx,.xls,.csv" onchange="onFileSelect(event,'marketplace')">
-                        <div class="upload-icon">📋</div>
-                        <div class="upload-hint">클릭 또는 <strong>드래그앤드롭</strong></div>
-                        <div class="upload-hint" style="font-size:0.75rem; margin-top:3px;">.xlsx / .xls / .csv</div>
-                        <div class="file-name" id="name-marketplace" style="display:none;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="card">
-            <div class="card-title">③ 처리 및 다운로드</div>
-
-            <!-- 미매핑 제거 옵션 -->
-            <div style="display:flex; align-items:center; gap:12px; padding:13px 16px; background:#f8f9fc; border-radius:9px; border:1.5px solid #e8eaed; margin-bottom:14px;">
-                <label class="toggle">
-                    <input type="checkbox" id="removeUnmapped" checked>
-                    <span class="toggle-slider"></span>
-                </label>
-                <div>
-                    <div style="font-size:0.9rem; font-weight:700; color:#1a1a2e;">미매핑 주문 결과 파일에서 제거</div>
-                    <div style="font-size:0.77rem; color:#999; margin-top:2px;">물류파일에 없는 주문(미출고)은 결과 파일에서 행 삭제 — 카카오 등 송장 업로드용으로 바로 사용 가능</div>
-                </div>
-            </div>
-
-            <button class="btn btn-primary" id="btnProcess" onclick="runProcess()" disabled>
-                <span id="processIcon">🔄</span>
-                <span id="processText">매핑 처리 시작</span>
-                <div class="spinner" id="processSpinner"></div>
-            </button>
-
-            <div class="result-box" id="resultBox">
-                <div class="stats-grid">
-                    <div class="stat-card stat-total">
-                        <div class="stat-value" id="statTotal">0</div>
-                        <div class="stat-label" id="statTotalLabel">결과 파일 주문</div>
-                    </div>
-                    <div class="stat-card stat-ok">
-                        <div class="stat-value" id="statMapped">0</div>
-                        <div class="stat-label">매핑 완료</div>
-                    </div>
-                    <div class="stat-card stat-warn">
-                        <div class="stat-value" id="statUnmapped">0</div>
-                        <div class="stat-label">미매핑 (미출고)</div>
-                    </div>
-                </div>
-
-                <div id="unmappedSection" style="display:none;">
-                    <div class="unmapped-box">
-                        <div class="unmapped-title">⚠️ 운송장번호 미입력 주문 (물류파일에 없음)</div>
-                        <div id="unmappedList"></div>
-                    </div>
-                </div>
-
-                <button class="btn btn-success" onclick="downloadResult()" style="margin-top: 12px;">
-                    📥 결과 파일 다운로드
-                </button>
-            </div>
-        </div>
-
+<!-- Profile Editor Modal -->
+<div id="edModal" class="modal-ov" onclick="if(event.target===this)closeEd()">
+  <div class="modal-box">
+    <div class="mh">
+      <h2 id="edTitle">프로필 편집</h2>
+      <button class="mc" onclick="closeEd()">✕</button>
     </div>
+    <div class="mb">
+      <div class="fg">
+        <label>거래처 이름 *</label>
+        <input type="text" id="edName" placeholder="예: 카카오선물하기">
+      </div>
+
+      <div class="fg">
+        <label>처리 방식 *</label>
+        <div class="mtabs">
+          <button class="mtab act" id="tabFill" onclick="switchMode('fill')">📝 Fill 모드 — 다운로드 파일에 직접 입력</button>
+          <button class="mtab" id="tabGen" onclick="switchMode('generate')">🆕 Generate 모드 — 새 업로드 파일 생성</button>
+        </div>
+        <div class="ht" id="modeHt"></div>
+      </div>
+
+      <div class="fr2">
+        <div class="fg">
+          <label>물류파일 — 주문번호 열 이름</label>
+          <input type="text" id="edLOK" placeholder="[주문번호]">
+        </div>
+        <div class="fg">
+          <label>물류파일 — 운송장번호 열 이름</label>
+          <input type="text" id="edLTK" placeholder="[운송장번호]">
+        </div>
+      </div>
+
+      <!-- Fill settings -->
+      <div id="fillSec">
+        <div class="fr2" style="margin-bottom:10px">
+          <div class="fg">
+            <label>헤더 행 번호</label>
+            <input type="number" id="edFHR" value="1" min="1">
+            <div class="ht">일반=1 / W컨셉=7 / KT알파=3</div>
+          </div>
+          <div class="fg">
+            <label>다운로드파일 — 주문번호 열 이름</label>
+            <input type="text" id="edFOK" placeholder="주문번호">
+          </div>
+        </div>
+        <div class="fg">
+          <label>채울 열 목록</label>
+          <table class="ct">
+            <thead><tr><th style="width:35%">열 이름</th><th style="width:28%">값 유형</th><th>고정값 (fixed인 경우)</th><th style="width:50px"></th></tr></thead>
+            <tbody id="fillCols"></tbody>
+          </table>
+          <button class="addcol" onclick="addFCol()">+ 열 추가</button>
+        </div>
+      </div>
+
+      <!-- Generate settings -->
+      <div id="genSec" style="display:none">
+        <div class="fr2" style="margin-bottom:10px">
+          <div class="fg">
+            <label>다운로드파일 — 헤더 행 번호</label>
+            <input type="number" id="edGHR" value="1" min="1">
+          </div>
+          <div class="fg">
+            <label>다운로드파일 — 주문번호 열 이름</label>
+            <input type="text" id="edGOK" placeholder="주문번호">
+          </div>
+        </div>
+        <div class="fg">
+          <label>출력 열 목록 (순서대로 출력됩니다)</label>
+          <table class="ct">
+            <thead><tr><th style="width:28%">출력 헤더명</th><th style="width:22%">값 소스</th><th>다운로드 열 이름 / 고정값</th><th style="width:50px"></th></tr></thead>
+            <tbody id="genCols"></tbody>
+          </table>
+          <button class="addcol" onclick="addGCol()">+ 열 추가</button>
+          <div class="ht" style="margin-top:5px">
+            <b>download</b>=다운로드파일 열 복사 &nbsp;|&nbsp; <b>tracking</b>=운송장번호 &nbsp;|&nbsp; <b>fixed</b>=고정값 &nbsp;|&nbsp; <b>empty</b>=공백 &nbsp;|&nbsp; <b>rownum</b>=순번(1,2,3...)
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn-d" id="edDelBtn" onclick="delProfile()" style="display:none">삭제</button>
+      <button class="btn-s" onclick="closeEd()">취소</button>
+      <button class="btn-p" onclick="saveProfile()">저장</button>
+    </div>
+  </div>
 </div>
 
-<!-- ══════════ PAGE: PROFILES ══════════ -->
-<div class="page" id="page-profiles">
-    <div class="container">
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-                <div class="card-title" style="margin-bottom:0;">⚙️ 거래처 프로필 관리</div>
-                <div class="btn-group">
-                    <button class="btn btn-outline btn-sm" onclick="exportProfiles()">📤 내보내기(JSON)</button>
-                    <button class="btn btn-outline btn-sm" onclick="document.getElementById('importInput').click()">📥 가져오기</button>
-                    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importProfiles(event)">
-                    <button class="btn btn-primary btn-sm" onclick="openEditor()">＋ 새 프로필 추가</button>
-                </div>
-            </div>
-
-            <div class="alert alert-info">
-                💡 각 거래처별로 프로필을 한 번만 설정해두면, 이후에는 파일 두 개를 올리고 버튼 하나만 누르면 됩니다. 프로필은 이 브라우저에 자동 저장됩니다.
-            </div>
-
-            <div style="overflow-x:auto;">
-                <table class="profile-table" id="profileTable">
-                    <thead>
-                        <tr>
-                            <th>거래처명</th>
-                            <th>매핑 기준열 (주문번호)</th>
-                            <th>송장번호 입력열</th>
-                            <th>택배사코드</th>
-                            <th>관리</th>
-                        </tr>
-                    </thead>
-                    <tbody id="profileTbody"></tbody>
-                </table>
-            </div>
-            <div id="emptyProfiles" style="text-align:center; padding:36px; color:#bbb; display:none;">
-                등록된 프로필이 없습니다. <strong style="color:#4361ee;">＋ 새 프로필 추가</strong>를 클릭하세요.
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ══════════ MODAL: PROFILE EDITOR ══════════ -->
-<div class="modal-overlay" id="editorModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h2 id="editorTitle">새 프로필 추가</h2>
-            <button class="modal-close" onclick="closeEditor()">✕</button>
-        </div>
-        <div class="modal-body">
-
-            <!-- 거래처명 -->
-            <div class="form-group">
-                <label class="form-label">거래처명<span class="required">*</span></label>
-                <input class="form-input" id="fName" placeholder="예: 카카오 선물하기, 네이버 스마트스토어, 쿠팡">
-            </div>
-
-            <hr class="divider">
-            <div class="section-label">📦 물류센터 파일 설정</div>
-
-            <div class="toggle-box">
-                <div class="toggle-row">
-                    <span class="toggle-text">기본 씨지에스 형식 그대로 사용</span>
-                    <label class="toggle">
-                        <input type="checkbox" id="fUseDefaultLog" checked onchange="syncLogSection()">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div id="defaultLogDesc" style="font-size:0.8rem; color:#999;">
-                    주문번호 열: <code>[주문번호]</code> &nbsp;|&nbsp; 운송장번호 열: <code>[운송장번호]</code>
-                </div>
-                <div id="customLogSection" style="display:none; margin-top:12px;">
-                    <div class="alert alert-warning" style="margin-bottom:10px;">
-                        ⚠️ 씨지에스가 아닌 다른 물류센터이거나 형식이 바뀐 경우만 수정하세요.
-                    </div>
-                    <div class="row-2">
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">주문번호 열 이름<span class="required">*</span></label>
-                            <input class="form-input" id="fLogOrderKey" value="[주문번호]">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">운송장번호 열 이름<span class="required">*</span></label>
-                            <input class="form-input" id="fLogTracking" value="[운송장번호]">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <hr class="divider">
-            <div class="section-label">🛒 거래처 주문파일 설정</div>
-
-            <!-- 샘플 파일 업로드 -->
-            <div class="form-group">
-                <label class="form-label">샘플 파일 업로드 <span style="font-weight:400; color:#aaa;">(선택 — 열 목록 자동 표시)</span></label>
-                <div class="upload-area" style="padding:12px; min-height:auto; flex-direction:row; justify-content:center; gap:8px;"
-                     onclick="document.getElementById('fSampleFile').click()">
-                    <input type="file" id="fSampleFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="loadSampleHeaders(event)">
-                    📂 <span style="font-size:0.86rem;">거래처 주문파일을 올리면 열 이름을 자동으로 불러옵니다</span>
-                </div>
-                <div id="sampleHeadersBox" style="display:none;"></div>
-            </div>
-
-            <div class="row-2">
-                <div class="form-group">
-                    <label class="form-label">주문번호 열 이름<span class="required">*</span></label>
-                    <input class="form-input" id="fMktOrderKey" placeholder="예: 주문번호">
-                    <div class="form-hint">물류파일과 매핑할 기준 열</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">송장번호 입력 열<span class="required">*</span></label>
-                    <input class="form-input" id="fMktTracking" placeholder="예: 송장번호">
-                    <div class="form-hint">운송장번호를 채워 넣을 열</div>
-                </div>
-            </div>
-
-            <hr class="divider">
-            <div class="section-label">🏷️ 택배사코드 설정</div>
-
-            <div class="toggle-box">
-                <div class="toggle-row">
-                    <span class="toggle-text">택배사코드 자동 입력 사용</span>
-                    <label class="toggle">
-                        <input type="checkbox" id="fUseCarrier" onchange="syncCarrierSection()">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div id="carrierSection" style="display:none;">
-                    <div class="row-2">
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">택배사코드 열 이름</label>
-                            <input class="form-input" id="fCarrierCol" placeholder="예: 택배사코드">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">입력할 코드 값</label>
-                            <input class="form-input" id="fCarrierVal" placeholder="예: 8 (카카오), 04 (네이버 CJ)">
-                            <div class="form-hint">카카오: 8 / 네이버 CJ대한통운: 04</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeEditor()">취소</button>
-            <button class="btn btn-primary" style="width:auto; min-width:120px;" onclick="saveProfile()">💾 저장</button>
-        </div>
-    </div>
-</div>
-
-<!-- ══════════ SCRIPT ══════════ -->
 <script>
-// ─────────────────────────────────────────────────────────
-// 1. 데이터 관리
-// ─────────────────────────────────────────────────────────
-const STORAGE_KEY = 'shipment_mapper_v3';
+// ============================================================
+// BUILT-IN PROFILES (13 marketplaces)
+// ============================================================
+const BUILTINS = [
+  // ── FILL MODE ──
+  {id:'kakao',name:'카카오선물하기',builtIn:true,mode:'fill',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    fill:{headerRow:1,orderKeyCol:'주문번호',
+      fillCols:[{col:'택배사코드',source:'fixed',value:'8'},{col:'송장번호',source:'tracking'}]}},
 
-const BUILT_IN_PROFILES = [
-    {
-        id: 'kakao_gift',
-        name: '카카오 선물하기',
-        builtIn: true,
-        logistics: { orderKeyColumn: '[주문번호]', trackingColumn: '[운송장번호]' },
-        marketplace: {
-            orderKeyColumn: '주문번호',
-            trackingColumn: '송장번호',
-            carrierCodeColumn: '택배사코드',
-            carrierCodeValue: '8'
-        }
-    }
+  {id:'wconcept',name:'W컨셉',builtIn:true,mode:'fill',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    fill:{headerRow:7,orderKeyCol:'주문번호',
+      fillCols:[{col:'송장번호',source:'tracking'},{col:'택배사코드',source:'fixed',value:'6'}]}},
+
+  {id:'kt_alpha',name:'KT알파쇼핑',builtIn:true,mode:'fill',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    fill:{headerRow:3,orderKeyCol:'주문번호',
+      fillCols:[
+        {col:'택배사코드',source:'fixed',value:'⚠️확인필요'},
+        {col:'택배사명',source:'fixed',value:'한진택배'},
+        {col:'운송장번호',source:'tracking'}]}},
+
+  {id:'cm29',name:'29CM',builtIn:true,mode:'fill',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    fill:{headerRow:1,orderKeyCol:'주문번호',
+      fillCols:[
+        {col:'택배사코드',source:'fixed',value:'⚠️확인필요'},
+        {col:'택배사명',source:'fixed',value:'한진택배'},
+        {col:'운송장번호',source:'tracking'}]}},
+
+  // ── GENERATE MODE ──
+  {id:'smartstore',name:'네이버 스마트스토어',builtIn:true,mode:'generate',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    generate:{dlHeaderRow:1,dlOrderKeyCol:'상품주문번호',
+      outputCols:[
+        {header:'상품주문번호',source:'download',fromCol:'상품주문번호'},
+        {header:'배송방법',source:'fixed',value:'택배,등기,소포'},
+        {header:'택배사',source:'fixed',value:'한진택배'},
+        {header:'송장번호',source:'tracking'}]}},
+
+  {id:'zigzag',name:'지그재그',builtIn:true,mode:'generate',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    generate:{dlHeaderRow:1,dlOrderKeyCol:'상품주문번호',
+      outputCols:[
+        {header:'상품주문번호',source:'download',fromCol:'상품주문번호'},
+        {header:'송장번호',source:'tracking'}]}},
+
+  {id:'ejaneru',name:'이제너두',builtIn:true,mode:'generate',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
+      outputCols:[
+        {header:'주문번호',source:'download',fromCol:'주문번호'},
+        {header:'상세순번',source:'download',fromCol:'상세순번'},
+        {header:'택배사코드',source:'fixed',value:'60'},
+        {header:'택배사',source:'fixed',value:'한진택배'},
+        {header:'송장번호',source:'tracking'}]}},
+
+  {id:'ssg',name:'신세계SSG',builtIn:true,mode:'generate',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    generate:{dlHeaderRow:1,dlOrderKeyCol:'배송번호',
+      outputCols:[
+        {header:'no',source:'rownum'},
+        {header:'배송번호',source:'download',fromCol:'배송번호'},
+        {header:'배송유형상세',source:'fixed',value:'22'},
+        {header:'택배사',source:'fixed',value:'0000033071'},
+        {header:'송장번호',source:'tracking'},
+        {header:'중량정보',source:'empty'}]}},
+
+  {id:'hyundai',name:'현대홈쇼핑',builtIn:true,mode:'generate',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
+      outputCols:[
+        {header:'주문번호',source:'download',fromCol:'주문번호'},
+        {header:'주문순번',source:'download',fromCol:'주문순번'},
+        {header:'택배사',source:'fixed',value:'⚠️확인필요'},
+        {header:'운송장번호',source:'tracking'}]}},
+
+  {id:'samsung',name:'삼성카드',builtIn:true,mode:'generate',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
+      outputCols:[
+        {header:'주문번호',source:'download',fromCol:'주문번호'},
+        {header:'배송번호',source:'download',fromCol:'배송번호'},
+        {header:'택배사명',source:'fixed',value:'한진택배'},
+        {header:'송장번호',source:'tracking'}]}},
+
+  {id:'eziwell',name:'이지웰',builtIn:true,mode:'generate',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
+      outputCols:[
+        {header:'주문번호',source:'download',fromCol:'주문번호'},
+        {header:'배송번호',source:'download',fromCol:'배송번호'},
+        {header:'택배사명',source:'fixed',value:'한진택배'},
+        {header:'송장번호',source:'tracking'},
+        {header:'협력사코드',source:'fixed',value:'10055576'}]}},
+
+  {id:'cjonst',name:'CJ온스타일',builtIn:true,mode:'generate',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
+      outputCols:[
+        {header:'인수자',source:'download',fromCol:'인수자'},
+        {header:'주문번호',source:'download',fromCol:'주문번호'},
+        {header:'택배사',source:'fixed',value:'⚠️확인필요'},
+        {header:'운송장번호',source:'tracking'}]}},
+
+  {id:'sabang',name:'사방넷',builtIn:true,mode:'generate',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
+    generate:{dlHeaderRow:2,dlOrderKeyCol:'사방넷주문번호',
+      outputCols:[
+        {header:'사방넷주문번호',source:'download',fromCol:'사방넷주문번호'},
+        {header:'운송장번호',source:'tracking'},
+        {header:'공란',source:'empty'},
+        {header:'배송희망일',source:'empty'},
+        {header:'사방넷택배사코드',source:'fixed',value:'⚠️확인필요'}]}}
 ];
 
+// ============================================================
+// STATE
+// ============================================================
 let profiles = [];
+let selId = null;
+let logData = null;
+let dlFileData = null;
+let resultWb = null;
+let resultFn = null;
+let edMode = 'fill';
+let edId = null;
 
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  loadProfiles();
+  renderList();
+}
+
+// ============================================================
+// PROFILE MANAGEMENT
+// ============================================================
 function loadProfiles() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        profiles = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(BUILT_IN_PROFILES));
-    } catch(e) {
-        profiles = JSON.parse(JSON.stringify(BUILT_IN_PROFILES));
+  profiles = BUILTINS.map(p => JSON.parse(JSON.stringify(p)));
+  try {
+    const custom = JSON.parse(localStorage.getItem('customProfiles') || '[]');
+    for (const c of custom) {
+      const idx = profiles.findIndex(p => p.id === c.id);
+      if (idx >= 0) profiles[idx] = c;
+      else profiles.push(c);
     }
+  } catch(e) {}
 }
 
-function saveToDisk() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
+function persistCustom() {
+  const custom = profiles.filter(p => !BUILTINS.find(b => b.id === p.id) || p._mod);
+  localStorage.setItem('customProfiles', JSON.stringify(custom));
 }
 
-function findProfile(id) { return profiles.find(p => p.id === id); }
+function getProf(id) { return profiles.find(p => p.id === id); }
 
-// ─────────────────────────────────────────────────────────
-// 2. 페이지 전환
-// ─────────────────────────────────────────────────────────
-function showPage(name) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-' + name).classList.add('active');
-    document.getElementById('btnNav-' + name).classList.add('active');
-    if (name === 'profiles') renderProfileTable();
-    if (name === 'process') populateSelect();
+function renderList() {
+  const el = document.getElementById('profileList');
+  el.innerHTML = '';
+  profiles.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'pi' + (p.id === selId ? ' sel' : '');
+    d.onclick = () => selectProf(p.id);
+    const badge = p.mode === 'fill'
+      ? '<span class="mbadge bf">Fill</span>'
+      : '<span class="mbadge bg">Gen</span>';
+    d.innerHTML = `<span class="pname" title="${esc(p.name)}">${esc(p.name)}</span>${badge}<button class="edb" onclick="event.stopPropagation();editProfile('${esc(p.id)}')" title="편집">✏️</button>`;
+    el.appendChild(d);
+  });
 }
 
-// ─────────────────────────────────────────────────────────
-// 3. 처리 페이지
-// ─────────────────────────────────────────────────────────
-let wbLogistics = null;
-let wbMarketplace = null;
-let resultRows = null;
-let resultFilename = 'result_송장입력.xlsx';
+function selectProf(id) {
+  selId = id;
+  renderList();
+  const p = getProf(id);
+  if (!p) return;
 
-function populateSelect() {
-    const sel = document.getElementById('profileSelect');
-    const cur = sel.value;
-    sel.innerHTML = '<option value="">-- 거래처를 선택하세요 --</option>';
-    profiles.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id; opt.textContent = p.name;
-        sel.appendChild(opt);
-    });
-    if (cur && profiles.some(p => p.id === cur)) sel.value = cur;
-    onProfileChange();
+  document.getElementById('noSelMsg').style.display = 'none';
+  document.getElementById('workArea').style.display = 'flex';
+
+  document.getElementById('profName').textContent = p.name;
+
+  let html = '';
+  html += `<div class="ii"><span class="il">방식:</span><span class="iv">${p.mode==='fill'?'Fill 모드':'Generate 모드'}</span></div>`;
+
+  if (p.mode === 'fill') {
+    const f = p.fill;
+    html += `<div class="ii"><span class="il">헤더 행:</span><span class="iv">${f.headerRow}행</span></div>`;
+    html += `<div class="ii"><span class="il">주문번호 열:</span><span class="iv">${esc(f.orderKeyCol)}</span></div>`;
+    const wc = f.fillCols.filter(c => c.source==='fixed' && String(c.value).includes('⚠️'));
+    if (wc.length) html += `<span class="warn-tag">⚠️ ${esc(wc.map(c=>c.col).join(', '))} — 코드 확인 필요</span>`;
+  } else {
+    const g = p.generate;
+    html += `<div class="ii"><span class="il">다운로드 헤더 행:</span><span class="iv">${g.dlHeaderRow}행</span></div>`;
+    html += `<div class="ii"><span class="il">주문번호 열:</span><span class="iv">${esc(g.dlOrderKeyCol)}</span></div>`;
+    html += `<div class="ii"><span class="il">출력 열:</span><span class="iv">${g.outputCols.length}개</span></div>`;
+    const wc = g.outputCols.filter(c => c.source==='fixed' && String(c.value).includes('⚠️'));
+    if (wc.length) html += `<span class="warn-tag">⚠️ ${esc(wc.map(c=>c.header).join(', '))} — 코드 확인 필요</span>`;
+  }
+  document.getElementById('profInfoBody').innerHTML = html;
+  document.getElementById('dlZoneSub').textContent =
+    p.mode==='fill' ? '주문내역 다운로드 파일 (업로드 파일과 동일 형식)' : '주문내역 다운로드 파일';
+  clearResults();
 }
 
-function onProfileChange() {
-    const sel = document.getElementById('profileSelect');
-    const p = findProfile(sel.value);
-    const bar = document.getElementById('profileInfoBar');
-    if (!p) { bar.innerHTML = ''; checkProcessBtn(); return; }
-
-    const carrier = p.marketplace.carrierCodeColumn
-        ? `택배사코드 <code>${p.marketplace.carrierCodeColumn}</code> = "<strong>${p.marketplace.carrierCodeValue}</strong>"`
-        : '택배사코드 미사용';
-
-    bar.innerHTML = `<div class="alert alert-info" style="margin-bottom:0; font-size:0.82rem;">
-        📌 <strong>${p.name}</strong> &nbsp;|&nbsp;
-        매핑 기준: <code>${p.marketplace.orderKeyColumn}</code> &nbsp;|&nbsp;
-        송장 입력열: <code>${p.marketplace.trackingColumn}</code> &nbsp;|&nbsp;
-        ${carrier}
-    </div>`;
-    checkProcessBtn();
+// ============================================================
+// FILE HANDLING
+// ============================================================
+function handleDrop(event, type) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag-over');
+  const f = event.dataTransfer.files[0];
+  if (f) loadFile(f, type);
 }
-
-function checkProcessBtn() {
-    const ok = !!document.getElementById('profileSelect').value && !!wbLogistics && !!wbMarketplace;
-    document.getElementById('btnProcess').disabled = !ok;
+function handleFI(event, type) {
+  const f = event.target.files[0];
+  if (f) loadFile(f, type);
+  event.target.value = '';
 }
-
-// 파일 업로드 공통
-function onDragOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('drag-over'); }
-function onDragLeave(e, id) { document.getElementById(id).classList.remove('drag-over'); }
-function onDrop(e, type) {
-    e.preventDefault();
-    document.getElementById('area-' + type).classList.remove('drag-over');
-    const f = e.dataTransfer.files[0];
-    if (f) loadFile(f, type);
-}
-function onFileSelect(e, type) {
-    const f = e.target.files[0];
-    if (f) loadFile(f, type);
-}
-
 async function loadFile(file, type) {
-    try {
-        const wb = await readWb(file);
-        wb._fname = file.name;
-        if (type === 'logistics') { wbLogistics = wb; }
-        else { wbMarketplace = wb; }
-
-        const el = document.getElementById('name-' + type);
-        el.textContent = '✅ ' + file.name;
-        el.style.display = 'block';
-        document.getElementById('area-' + type).classList.add('has-file');
-        document.getElementById('resultBox').classList.remove('show');
-        checkProcessBtn();
-    } catch(e) { alert('파일 읽기 오류: ' + e.message); }
-}
-
-function readWb(file) {
-    return new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = ev => {
-            try { resolve(XLSX.read(ev.target.result, { type: 'binary', raw: false, cellDates: true })); }
-            catch(e) { reject(e); }
-        };
-        r.onerror = () => reject(new Error('파일 읽기 실패'));
-        r.readAsBinaryString(file);
-    });
-}
-
-function wb2rows(wb) {
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    return XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
-}
-
-// ─────────────────────────────────────────────────────────
-// 4. 핵심 매핑 로직
-// ─────────────────────────────────────────────────────────
-async function runProcess() {
-    const profileId = document.getElementById('profileSelect').value;
-    const p = findProfile(profileId);
-    if (!p || !wbLogistics || !wbMarketplace) return;
-
-    // 로딩 UI
-    document.getElementById('btnProcess').disabled = true;
-    document.getElementById('processIcon').style.display = 'none';
-    document.getElementById('processText').textContent = '처리 중...';
-    document.getElementById('processSpinner').style.display = 'block';
-
-    await new Promise(r => setTimeout(r, 80)); // UI 렌더 대기
-
-    try {
-        const logRows = wb2rows(wbLogistics);
-        const mktRows = wb2rows(wbMarketplace);
-
-        // 물류 파일 열 인덱스
-        const logHdr = logRows[0].map(h => String(h).trim());
-        const liOrderIdx = colIdx(logHdr, p.logistics.orderKeyColumn);
-        const liTrackIdx = colIdx(logHdr, p.logistics.trackingColumn);
-        if (liOrderIdx < 0) throw new Error(`물류파일에서 주문번호 열 "${p.logistics.orderKeyColumn}"을 찾지 못했습니다.\n실제 헤더: ${logHdr.slice(0,12).join(' / ')}`);
-        if (liTrackIdx < 0) throw new Error(`물류파일에서 운송장번호 열 "${p.logistics.trackingColumn}"을 찾지 못했습니다.`);
-
-        // 운송장 맵 생성
-        const trackMap = new Map();
-        for (let i = 1; i < logRows.length; i++) {
-            const order = String(logRows[i][liOrderIdx] || '').trim();
-            const track = String(logRows[i][liTrackIdx] || '').trim();
-            if (order && track) trackMap.set(order, track);
-        }
-
-        // 거래처 파일 열 인덱스
-        const mktHdr = mktRows[0].map(h => String(h).trim());
-        const miOrderIdx = colIdx(mktHdr, p.marketplace.orderKeyColumn);
-        const miTrackIdx = colIdx(mktHdr, p.marketplace.trackingColumn);
-        const miCarrierIdx = p.marketplace.carrierCodeColumn ? colIdx(mktHdr, p.marketplace.carrierCodeColumn) : -1;
-
-        if (miOrderIdx < 0) throw new Error(`주문파일에서 주문번호 열 "${p.marketplace.orderKeyColumn}"을 찾지 못했습니다.\n실제 헤더: ${mktHdr.slice(0,12).join(' / ')}`);
-        if (miTrackIdx < 0) throw new Error(`주문파일에서 송장번호 열 "${p.marketplace.trackingColumn}"을 찾지 못했습니다.`);
-
-        // 행 복사 후 데이터 채우기
-        const maxIdx = Math.max(miTrackIdx, miCarrierIdx >= 0 ? miCarrierIdx : 0);
-        const out = mktRows.map(row => {
-            const r = [...row];
-            while (r.length <= maxIdx) r.push('');
-            return r;
-        });
-
-        let mapped = 0;
-        const unmapped = [];
-        const mappedRows = [];   // 매핑 성공 행만 모음
-
-        // 수령인 열 인덱스 미리 찾기
-        const recipIdx = ['수령인명','수령인','받는사람','수취인']
-            .map(n => colIdx(mktHdr, n)).find(x => x >= 0);
-
-        for (let i = 1; i < out.length; i++) {
-            const orderNum = String(out[i][miOrderIdx] || '').trim();
-            if (!orderNum) { mappedRows.push(out[i]); continue; } // 빈 행은 유지
-
-            const tracking = trackMap.get(orderNum);
-            if (tracking) {
-                out[i][miTrackIdx] = tracking;
-                if (miCarrierIdx >= 0 && p.marketplace.carrierCodeValue) {
-                    out[i][miCarrierIdx] = p.marketplace.carrierCodeValue;
-                }
-                mappedRows.push(out[i]);
-                mapped++;
-            } else {
-                const recip = (recipIdx !== undefined) ? out[i][recipIdx] : '';
-                unmapped.push({ row: i + 1, order: orderNum, recip });
-                // 제거 옵션이 꺼진 경우에는 원본 행 유지
-            }
-        }
-
-        // 미매핑 제거 옵션 적용
-        const doRemove = document.getElementById('removeUnmapped').checked;
-        resultRows = doRemove ? [out[0], ...mappedRows] : out;
-
-        const orig = wbMarketplace._fname || 'result.xlsx';
-        const ext = orig.includes('.') ? orig.split('.').pop() : 'xlsx';
-        resultFilename = orig.replace(/\.[^.]+$/, '') + '_송장입력.' + ext;
-
-        // 결과 표시
-        const totalInFile = doRemove ? mapped : (out.length - 1);
-        document.getElementById('statTotal').textContent = totalInFile;
-        document.getElementById('statTotalLabel').textContent = doRemove ? '결과 파일 주문' : '전체 주문';
-        document.getElementById('statMapped').textContent = mapped;
-        document.getElementById('statUnmapped').textContent = unmapped.length;
-
-        if (unmapped.length > 0) {
-            document.getElementById('unmappedSection').style.display = 'block';
-            document.getElementById('unmappedList').innerHTML = unmapped.map(u =>
-                `<div class="unmapped-item">📌 행 ${u.row} | 주문번호: ${u.order}${u.recip ? ' | 수령인: ' + u.recip : ''}</div>`
-            ).join('');
-        } else {
-            document.getElementById('unmappedSection').style.display = 'none';
-        }
-
-        document.getElementById('resultBox').classList.add('show');
-
-    } catch(e) {
-        alert('⚠️ 처리 오류\n\n' + e.message);
-    } finally {
-        document.getElementById('btnProcess').disabled = false;
-        document.getElementById('processIcon').style.display = 'inline';
-        document.getElementById('processText').textContent = '매핑 처리 시작';
-        document.getElementById('processSpinner').style.display = 'none';
-        checkProcessBtn();
+  try {
+    const rows = await readXlsx(file);
+    if (type === 'log') {
+      logData = {rows, fileName: file.name};
+      document.getElementById('logZone').classList.add('has-file');
+      document.getElementById('logFn').textContent = '✅ ' + file.name;
+    } else {
+      dlFileData = {rows, fileName: file.name};
+      document.getElementById('dlZone').classList.add('has-file');
+      document.getElementById('dlFn').textContent = '✅ ' + file.name;
     }
+    hideErr();
+  } catch(e) { showErr('파일 읽기 실패: ' + e.message); }
+}
+function readXlsx(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => {
+      try {
+        const wb = XLSX.read(e.target.result, {type:'array', cellDates:false});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        res(XLSX.utils.sheet_to_json(ws, {header:1, defval:''}));
+      } catch(err) { rej(err); }
+    };
+    r.onerror = () => rej(new Error('파일 읽기 오류'));
+    r.readAsArrayBuffer(file);
+  });
 }
 
-// 열 이름으로 인덱스 찾기 (대소문자 무시, 공백 무시)
+// ============================================================
+// UTILITIES
+// ============================================================
 function colIdx(headers, name) {
-    const n = name.trim().toLowerCase();
-    let idx = headers.findIndex(h => String(h).trim() === name.trim());   // 완전 일치 우선
-    if (idx >= 0) return idx;
-    return headers.findIndex(h => String(h).trim().toLowerCase() === n); // 대소문자 무시
+  if (!name || !headers) return -1;
+  const n = String(name).trim().toLowerCase();
+  for (let i = 0; i < headers.length; i++)
+    if (String(headers[i]??'').trim().toLowerCase() === n) return i;
+  return -1;
+}
+function showErr(msg) {
+  const el = document.getElementById('errMsg');
+  el.style.display = 'block';
+  el.textContent = '❌ ' + msg;
+}
+function hideErr() { document.getElementById('errMsg').style.display = 'none'; }
+function clearResults() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('dlBtn').style.display = 'none';
+  hideErr();
+  resultWb = null; resultFn = null;
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function downloadResult() {
-    if (!resultRows) return;
-    const ws = XLSX.utils.aoa_to_sheet(resultRows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-    XLSX.writeFile(wb, resultFilename);
+// ============================================================
+// PROCESSING
+// ============================================================
+function buildTrackMap(logRows, prof) {
+  const hdr = logRows[0];
+  const oi = colIdx(hdr, prof.logistics.orderKeyCol);
+  const ti = colIdx(hdr, prof.logistics.trackingCol);
+  if (oi < 0) throw new Error(
+    `물류 파일에서 '${prof.logistics.orderKeyCol}' 열을 찾을 수 없습니다.\n물류 파일 1행 열 목록: ${hdr.filter(h=>h).slice(0,15).join(', ')}`);
+  if (ti < 0) throw new Error(
+    `물류 파일에서 '${prof.logistics.trackingCol}' 열을 찾을 수 없습니다.`);
+  const map = new Map();
+  for (let i = 1; i < logRows.length; i++) {
+    const row = logRows[i];
+    const ok = String(row[oi]??'').trim();
+    const tk = String(row[ti]??'').trim();
+    if (ok && tk) map.set(ok, tk);
+  }
+  return map;
 }
 
-// ─────────────────────────────────────────────────────────
-// 5. 프로필 관리 페이지
-// ─────────────────────────────────────────────────────────
-function renderProfileTable() {
-    const tbody = document.getElementById('profileTbody');
-    const empty = document.getElementById('emptyProfiles');
+function runProcess() {
+  clearResults();
+  if (!selId) { showErr('거래처 프로필을 선택하세요.'); return; }
+  if (!logData) { showErr('물류센터 송장 파일을 먼저 올려주세요.'); return; }
+  if (!dlFileData) { showErr('거래처 주문내역 파일을 먼저 올려주세요.'); return; }
 
-    if (profiles.length === 0) {
-        tbody.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-    }
-    empty.style.display = 'none';
+  const prof = getProf(selId);
+  if (!prof) return;
 
-    tbody.innerHTML = profiles.map(p => {
-        const carrierTxt = p.marketplace.carrierCodeColumn
-            ? `<code>${p.marketplace.carrierCodeColumn}</code> = "${p.marketplace.carrierCodeValue}"`
-            : '<span style="color:#ccc;">-</span>';
-        const badge = p.builtIn
-            ? '<span class="badge badge-default">기본</span>'
-            : '<span class="badge badge-custom">커스텀</span>';
-        return `<tr>
-            <td><strong>${p.name}</strong> ${badge}</td>
-            <td><code>${p.marketplace.orderKeyColumn}</code></td>
-            <td><code>${p.marketplace.trackingColumn}</code></td>
-            <td>${carrierTxt}</td>
-            <td>
-                <div class="btn-group">
-                    <button class="btn btn-outline btn-sm" onclick="openEditor('${p.id}')">✏️ 수정</button>
-                    <button class="btn btn-danger" onclick="deleteProfile('${p.id}')">🗑️</button>
-                </div>
-            </td>
-        </tr>`;
-    }).join('');
+  // Check ⚠️ placeholders
+  let warns = [];
+  if (prof.mode === 'fill')
+    prof.fill.fillCols.forEach(c => { if (c.source==='fixed' && String(c.value).includes('⚠️')) warns.push(c.col); });
+  else
+    prof.generate.outputCols.forEach(c => { if (c.source==='fixed' && String(c.value).includes('⚠️')) warns.push(c.header); });
+
+  if (warns.length) {
+    const go = confirm(
+      `⚠️ 다음 항목의 코드가 아직 설정되지 않았습니다:\n  ${warns.join(', ')}\n\n✏️ [프로필 수정] 버튼에서 정확한 코드를 입력하는 것을 권장합니다.\n\n지금 바로 진행하시겠습니까? (⚠️확인필요 문자가 그대로 입력됩니다)`);
+    if (!go) return;
+  }
+
+  const rm = document.getElementById('rmUnmapped').checked;
+  try {
+    let res;
+    if (prof.mode === 'fill') res = doFill(prof, logData.rows, dlFileData.rows, rm);
+    else res = doGenerate(prof, logData.rows, dlFileData.rows, rm);
+
+    const ws = XLSX.utils.aoa_to_sheet(res.rows);
+    resultWb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(resultWb, ws, 'Sheet1');
+    resultFn = dlFileData.fileName.replace(/\.(xlsx|xls)$/i,'') + '_송장입력.xlsx';
+    showStats(res);
+  } catch(e) { showErr(e.message); }
 }
 
-function deleteProfile(id) {
-    const p = findProfile(id);
-    if (!p) return;
-    if (!confirm(`"${p.name}" 프로필을 삭제하시겠습니까?`)) return;
-    profiles = profiles.filter(x => x.id !== id);
-    saveToDisk();
-    renderProfileTable();
-    populateSelect();
-}
+function doFill(prof, logRows, dlRows, rm) {
+  const p = prof.fill;
+  const hIdx = p.headerRow - 1;
+  if (hIdx >= dlRows.length)
+    throw new Error(`헤더 행(${p.headerRow}행)이 파일 범위를 벗어납니다. 파일 행 수: ${dlRows.length}`);
 
-// ─────────────────────────────────────────────────────────
-// 6. 프로필 편집기 모달
-// ─────────────────────────────────────────────────────────
-let editingId = null;
+  const tmap = buildTrackMap(logRows, prof);
+  const hdr = dlRows[hIdx];
+  const oIdx = colIdx(hdr, p.orderKeyCol);
+  if (oIdx < 0)
+    throw new Error(`다운로드 파일에서 주문번호 열 '${p.orderKeyCol}'을 찾을 수 없습니다.\n파일 헤더(${p.headerRow}행): ${hdr.filter(h=>h).join(', ')}`);
 
-function openEditor(id = null) {
-    editingId = id;
+  const fcols = p.fillCols.map(fc => {
+    const ci = colIdx(hdr, fc.col);
+    if (ci < 0)
+      throw new Error(`다운로드 파일에서 채울 열 '${fc.col}'을 찾을 수 없습니다.\n파일 헤더: ${hdr.filter(h=>h).join(', ')}`);
+    return {...fc, ci};
+  });
 
-    // 폼 초기화
-    document.getElementById('fName').value = '';
-    document.getElementById('fUseDefaultLog').checked = true;
-    document.getElementById('fLogOrderKey').value = '[주문번호]';
-    document.getElementById('fLogTracking').value = '[운송장번호]';
-    document.getElementById('fMktOrderKey').value = '';
-    document.getElementById('fMktTracking').value = '';
-    document.getElementById('fUseCarrier').checked = false;
-    document.getElementById('fCarrierCol').value = '';
-    document.getElementById('fCarrierVal').value = '';
-    document.getElementById('sampleHeadersBox').style.display = 'none';
-    document.getElementById('fSampleFile').value = '';
-    syncLogSection();
-    syncCarrierSection();
+  const pre = dlRows.slice(0, hIdx);  // W컨셉 등 헤더 위 설명 행 보존
+  const data = dlRows.slice(hIdx + 1);
+  let mapped=0, unmapped=0;
+  const out = [];
 
-    if (id) {
-        const p = findProfile(id);
-        if (!p) return;
-        document.getElementById('editorTitle').textContent = '프로필 수정';
-        document.getElementById('fName').value = p.name;
-
-        const isDefaultLog = (p.logistics.orderKeyColumn === '[주문번호]' && p.logistics.trackingColumn === '[운송장번호]');
-        document.getElementById('fUseDefaultLog').checked = isDefaultLog;
-        document.getElementById('fLogOrderKey').value = p.logistics.orderKeyColumn;
-        document.getElementById('fLogTracking').value = p.logistics.trackingColumn;
-        document.getElementById('fMktOrderKey').value = p.marketplace.orderKeyColumn;
-        document.getElementById('fMktTracking').value = p.marketplace.trackingColumn;
-
-        if (p.marketplace.carrierCodeColumn) {
-            document.getElementById('fUseCarrier').checked = true;
-            document.getElementById('fCarrierCol').value = p.marketplace.carrierCodeColumn;
-            document.getElementById('fCarrierVal').value = p.marketplace.carrierCodeValue || '';
-        }
-        syncLogSection();
-        syncCarrierSection();
+  for (const row of data) {
+    if (row.every(c => c===''||c===null||c===undefined)) continue;
+    const ok = String(row[oIdx]??'').trim();
+    if (!ok) continue;
+    const tk = tmap.get(ok);
+    if (tk) {
+      const nr = [...row];
+      for (const fc of fcols) {
+        while (nr.length <= fc.ci) nr.push('');
+        if (fc.source === 'tracking') nr[fc.ci] = tk;
+        else if (fc.source === 'fixed') nr[fc.ci] = fc.value;
+      }
+      out.push(nr); mapped++;
     } else {
-        document.getElementById('editorTitle').textContent = '새 프로필 추가';
+      unmapped++;
+      if (!rm) out.push([...row]);
     }
-    document.getElementById('editorModal').classList.add('show');
+  }
+  return {rows:[...pre, hdr, ...out], mapped, unmapped, total:mapped+unmapped};
 }
 
-function closeEditor() {
-    document.getElementById('editorModal').classList.remove('show');
-    editingId = null;
-}
+function doGenerate(prof, logRows, dlRows, rm) {
+  const p = prof.generate;
+  const hIdx = p.dlHeaderRow - 1;
+  if (hIdx >= dlRows.length)
+    throw new Error(`다운로드 파일 헤더 행(${p.dlHeaderRow}행)이 범위를 벗어납니다.`);
 
-function syncLogSection() {
-    const def = document.getElementById('fUseDefaultLog').checked;
-    document.getElementById('defaultLogDesc').style.display = def ? 'block' : 'none';
-    document.getElementById('customLogSection').style.display = def ? 'none' : 'block';
-}
+  const tmap = buildTrackMap(logRows, prof);
+  const dlHdr = dlRows[hIdx];
+  const oIdx = colIdx(dlHdr, p.dlOrderKeyCol);
+  if (oIdx < 0)
+    throw new Error(`다운로드 파일에서 주문번호 열 '${p.dlOrderKeyCol}'을 찾을 수 없습니다.\n파일 헤더(${p.dlHeaderRow}행): ${dlHdr.filter(h=>h).join(', ')}`);
 
-function syncCarrierSection() {
-    document.getElementById('carrierSection').style.display =
-        document.getElementById('fUseCarrier').checked ? 'block' : 'none';
-}
-
-async function loadSampleHeaders(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-        const wb = await readWb(file);
-        const rows = wb2rows(wb);
-        if (!rows.length) throw new Error('파일이 비어있습니다.');
-        const headers = rows[0].filter(h => String(h).trim() !== '');
-        const box = document.getElementById('sampleHeadersBox');
-        box.innerHTML = `<div class="headers-box">
-            <strong>📋 발견된 열 목록 (${headers.length}개) — 클릭하면 필드에 자동입력:</strong>
-            <div class="tag-list">${headers.map(h =>
-                `<span class="tag" onclick="smartFill(${JSON.stringify(String(h))})">${h}</span>`
-            ).join('')}</div>
-            <div class="tag-hint">💡 주문번호·송장·택배사 관련 열은 자동 인식합니다. 그 외 열은 클릭 후 대상 필드를 선택하세요.</div>
-        </div>`;
-        box.style.display = 'block';
-    } catch(e) {
-        alert('파일 읽기 오류: ' + e.message);
+  const cols = p.outputCols.map(oc => {
+    let dci = -1;
+    if (oc.source === 'download') {
+      dci = colIdx(dlHdr, oc.fromCol);
+      if (dci < 0)
+        throw new Error(`다운로드 파일에서 '${oc.fromCol}' 열을 찾을 수 없습니다.\n파일 헤더: ${dlHdr.filter(h=>h).join(', ')}`);
     }
-}
+    return {...oc, dci};
+  });
 
-function smartFill(headerName) {
-    const h = headerName.toLowerCase().replace(/\s/g, '');
-    if (h.includes('주문번호') || h.includes('orderno') || h.includes('orderid')) {
-        document.getElementById('fMktOrderKey').value = headerName;
-        highlight('fMktOrderKey');
-    } else if (h.includes('송장') || h.includes('운송장') || h.includes('tracking')) {
-        document.getElementById('fMktTracking').value = headerName;
-        highlight('fMktTracking');
-    } else if (h.includes('택배') || h.includes('배송사') || h.includes('carrier') || h.includes('deliverycompany')) {
-        document.getElementById('fCarrierCol').value = headerName;
-        document.getElementById('fUseCarrier').checked = true;
-        syncCarrierSection();
-        highlight('fCarrierCol');
-    } else {
-        // 직접 선택
-        const choice = prompt(
-            `"${headerName}"을 어느 필드에 넣을까요?\n\n` +
-            `1 → 주문번호 열\n2 → 송장번호 입력 열\n3 → 택배사코드 열\n\n번호를 입력하세요:`
-        );
-        const targets = ['fMktOrderKey', 'fMktTracking', 'fCarrierCol'];
-        const idx = parseInt(choice) - 1;
-        if (idx >= 0 && idx < targets.length) {
-            document.getElementById(targets[idx]).value = headerName;
-            if (idx === 2) { document.getElementById('fUseCarrier').checked = true; syncCarrierSection(); }
-            highlight(targets[idx]);
+  const outHdr = p.outputCols.map(c => c.header);
+  const data = dlRows.slice(hIdx + 1);
+  let mapped=0, unmapped=0, rn=1;
+  const rows = [outHdr];
+
+  for (const row of data) {
+    if (row.every(c => c===''||c===null||c===undefined)) continue;
+    const ok = String(row[oIdx]??'').trim();
+    if (!ok) continue;
+    const tk = tmap.get(ok);
+    if (tk) {
+      rows.push(cols.map(c => {
+        switch(c.source) {
+          case 'download': return row[c.dci]??'';
+          case 'tracking': return tk;
+          case 'fixed':    return c.value??'';
+          case 'rownum':   return rn;
+          case 'empty':    return '';
+          default:         return '';
         }
+      }));
+      rn++; mapped++;
+    } else {
+      unmapped++;
+      if (!rm) {
+        rows.push(cols.map(c => {
+          if (c.source==='download') return row[c.dci]??'';
+          if (c.source==='rownum') return rn;
+          return '';
+        }));
+        rn++;
+      }
     }
+  }
+  return {rows, mapped, unmapped, total:mapped+unmapped};
 }
 
-function highlight(id) {
-    const el = document.getElementById(id);
-    el.style.borderColor = '#4361ee';
-    el.style.background = '#eef1ff';
-    setTimeout(() => { el.style.borderColor = ''; el.style.background = ''; }, 1200);
+function showStats(res) {
+  document.getElementById('statsBox').innerHTML = `
+    <div class="sb tot"><div class="sv">${res.total}</div><div class="sl">전체 주문</div></div>
+    <div class="sb map"><div class="sv" style="color:#2e7d32">✅ ${res.mapped}</div><div class="sl">매핑 완료</div></div>
+    <div class="sb unm"><div class="sv" style="color:#e65100">${res.unmapped}</div><div class="sl">미매핑 (미출고)</div></div>`;
+  const rm = document.getElementById('rmUnmapped').checked;
+  document.getElementById('rmsgEl').textContent =
+    res.unmapped > 0
+    ? `미매핑 ${res.unmapped}건은 물류센터에 아직 송장이 없는 주문입니다. ${rm?'결과 파일에서 제외했습니다.':'결과 파일에 포함했습니다 (빈 값).'}`
+    : '모든 주문에 송장번호가 매핑되었습니다. 🎉';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('dlBtn').style.display = 'block';
+}
+
+function doDownload() {
+  if (resultWb && resultFn) XLSX.writeFile(resultWb, resultFn);
+}
+
+// ============================================================
+// PROFILE EDITOR
+// ============================================================
+function newProfile() {
+  edId = null;
+  openEd({
+    id: '', name: '', mode: 'fill',
+    logistics: {orderKeyCol:'[주문번호]', trackingCol:'[운송장번호]'},
+    fill: {headerRow:1, orderKeyCol:'주문번호',
+      fillCols:[{col:'송장번호',source:'tracking'},{col:'택배사코드',source:'fixed',value:''}]},
+    generate: {dlHeaderRow:1, dlOrderKeyCol:'주문번호',
+      outputCols:[
+        {header:'주문번호',source:'download',fromCol:'주문번호'},
+        {header:'송장번호',source:'tracking'}]}
+  });
+}
+
+function editProfile(id) {
+  edId = id;
+  const p = getProf(id);
+  if (p) openEd(JSON.parse(JSON.stringify(p)));
+}
+
+function openEd(p) {
+  document.getElementById('edTitle').textContent = edId ? '프로필 편집' : '새 프로필 추가';
+  document.getElementById('edName').value = p.name || '';
+  document.getElementById('edLOK').value = p.logistics?.orderKeyCol || '[주문번호]';
+  document.getElementById('edLTK').value = p.logistics?.trackingCol || '[운송장번호]';
+
+  edMode = p.mode || 'fill';
+  updateModeTabs();
+
+  // Fill settings
+  const f = p.fill || {};
+  document.getElementById('edFHR').value = f.headerRow || 1;
+  document.getElementById('edFOK').value = f.orderKeyCol || '';
+  renderFCols(f.fillCols || []);
+
+  // Generate settings
+  const g = p.generate || {};
+  document.getElementById('edGHR').value = g.dlHeaderRow || 1;
+  document.getElementById('edGOK').value = g.dlOrderKeyCol || '';
+  renderGCols(g.outputCols || []);
+
+  // Delete button
+  const delBtn = document.getElementById('edDelBtn');
+  if (edId) {
+    delBtn.style.display = 'block';
+    const isBuiltin = !!BUILTINS.find(b => b.id === edId);
+    delBtn.textContent = (isBuiltin && p._mod) ? '기본값으로 복원' : isBuiltin ? '기본 프로필 (삭제 불가)' : '삭제';
+    delBtn.style.opacity = (isBuiltin && !p._mod) ? '0.4' : '1';
+    delBtn.disabled = isBuiltin && !p._mod;
+  } else {
+    delBtn.style.display = 'none';
+  }
+
+  document.getElementById('edModal').style.display = 'flex';
+}
+
+function switchMode(m) {
+  edMode = m;
+  updateModeTabs();
+}
+function updateModeTabs() {
+  document.getElementById('tabFill').className = 'mtab' + (edMode==='fill' ? ' act' : '');
+  document.getElementById('tabGen').className = 'mtab' + (edMode==='generate' ? ' act' : '');
+  document.getElementById('fillSec').style.display = edMode==='fill' ? 'block' : 'none';
+  document.getElementById('genSec').style.display = edMode==='generate' ? 'block' : 'none';
+  document.getElementById('modeHt').textContent = edMode==='fill'
+    ? 'Fill 모드: 다운로드 파일 구조를 그대로 유지하면서 송장/택배사 열만 채웁니다. (카카오, W컨셉, KT알파, 29CM 등)'
+    : 'Generate 모드: 새로운 업로드 파일을 생성합니다. 출력 열을 자유롭게 구성할 수 있습니다. (스마트스토어, 지그재그, 이제너두 등)';
+}
+
+// Fill cols
+function renderFCols(cols) {
+  const tb = document.getElementById('fillCols');
+  tb.innerHTML = '';
+  cols.forEach(c => appendFCol(c));
+}
+function appendFCol(c) {
+  c = c || {};
+  const tb = document.getElementById('fillCols');
+  const tr = document.createElement('tr');
+  const isFixed = c.source === 'fixed';
+  tr.innerHTML = `
+    <td><input type="text" value="${esc(c.col||'')}" placeholder="열 이름"></td>
+    <td><select onchange="this.closest('tr').querySelector('.fv').style.display=this.value==='fixed'?'':'none'">
+      <option value="tracking"${c.source!=='fixed'?' selected':''}>tracking — 운송장번호</option>
+      <option value="fixed"${isFixed?' selected':''}>fixed — 고정값</option>
+    </select></td>
+    <td><input type="text" class="fv" value="${esc(c.value||'')}" placeholder="고정값" style="display:${isFixed?'':'none'}"></td>
+    <td><button class="delbtn" onclick="this.closest('tr').remove()">삭제</button></td>`;
+  tb.appendChild(tr);
+}
+function addFCol() { appendFCol({}); }
+
+// Generate cols
+function renderGCols(cols) {
+  const tb = document.getElementById('genCols');
+  tb.innerHTML = '';
+  cols.forEach(c => appendGCol(c));
+}
+function appendGCol(c) {
+  c = c || {};
+  const tb = document.getElementById('genCols');
+  const tr = document.createElement('tr');
+  const src = c.source || 'download';
+  const opts = ['download','tracking','fixed','empty','rownum'].map(s => `<option value="${s}"${src===s?' selected':''}>${s}</option>`).join('');
+  tr.innerHTML = `
+    <td><input type="text" class="gh" value="${esc(c.header||'')}" placeholder="헤더명"></td>
+    <td><select class="gs" onchange="updateGRow(this)">${opts}</select></td>
+    <td>
+      <input type="text" class="gd" value="${esc(c.fromCol||'')}" placeholder="열 이름" style="display:${src==='download'?'':'none'}">
+      <input type="text" class="gf" value="${esc(c.value||'')}" placeholder="고정값" style="display:${src==='fixed'?'':'none'}">
+      <span class="gn" style="color:#bbb;font-size:11px;display:${['tracking','empty','rownum'].includes(src)?'':'none'}">—</span>
+    </td>
+    <td><button class="delbtn" onclick="this.closest('tr').remove()">삭제</button></td>`;
+  tb.appendChild(tr);
+}
+function updateGRow(sel) {
+  const tr = sel.closest('tr');
+  const v = sel.value;
+  tr.querySelector('.gd').style.display = v==='download' ? '' : 'none';
+  tr.querySelector('.gf').style.display = v==='fixed' ? '' : 'none';
+  tr.querySelector('.gn').style.display = ['tracking','empty','rownum'].includes(v) ? '' : 'none';
+}
+function addGCol() { appendGCol({}); }
+
+function collectFCols() {
+  return Array.from(document.getElementById('fillCols').rows).map(tr => {
+    const els = tr.querySelectorAll('input,select');
+    const col = els[0].value.trim();
+    const src = els[1].value;
+    const val = els[2].value.trim();
+    return col ? {col, source:src, value:src==='fixed'?val:undefined} : null;
+  }).filter(Boolean);
+}
+function collectGCols() {
+  return Array.from(document.getElementById('genCols').rows).map(tr => {
+    const hdr = tr.querySelector('.gh').value.trim();
+    const src = tr.querySelector('.gs').value;
+    const dci = tr.querySelector('.gd').value.trim();
+    const fvi = tr.querySelector('.gf').value.trim();
+    if (!hdr) return null;
+    const oc = {header:hdr, source:src};
+    if (src==='download') oc.fromCol = dci;
+    if (src==='fixed') oc.value = fvi;
+    return oc;
+  }).filter(Boolean);
 }
 
 function saveProfile() {
-    const name = document.getElementById('fName').value.trim();
-    if (!name) { alert('거래처명을 입력하세요.'); return; }
-
-    const useDefLog = document.getElementById('fUseDefaultLog').checked;
-    const logOrderKey = useDefLog ? '[주문번호]' : document.getElementById('fLogOrderKey').value.trim();
-    const logTracking  = useDefLog ? '[운송장번호]' : document.getElementById('fLogTracking').value.trim();
-    const mktOrderKey  = document.getElementById('fMktOrderKey').value.trim();
-    const mktTracking  = document.getElementById('fMktTracking').value.trim();
-
-    if (!logOrderKey || !logTracking) { alert('물류파일 열 이름을 모두 입력하세요.'); return; }
-    if (!mktOrderKey) { alert('주문번호 열 이름을 입력하세요.'); return; }
-    if (!mktTracking) { alert('송장번호 입력 열 이름을 입력하세요.'); return; }
-
-    const useCarrier = document.getElementById('fUseCarrier').checked;
-    const carrierCol = useCarrier ? document.getElementById('fCarrierCol').value.trim() : null;
-    const carrierVal = useCarrier ? document.getElementById('fCarrierVal').value.trim() : null;
-
-    const pData = {
-        id: editingId || 'p_' + Date.now(),
-        name,
-        builtIn: false,
-        logistics: { orderKeyColumn: logOrderKey, trackingColumn: logTracking },
-        marketplace: {
-            orderKeyColumn: mktOrderKey,
-            trackingColumn: mktTracking,
-            carrierCodeColumn: carrierCol || null,
-            carrierCodeValue: carrierVal || null
-        }
-    };
-
-    if (editingId) {
-        const idx = profiles.findIndex(p => p.id === editingId);
-        if (idx >= 0) profiles[idx] = pData;
-    } else {
-        profiles.push(pData);
+  const name = document.getElementById('edName').value.trim();
+  if (!name) { alert('거래처 이름을 입력하세요.'); return; }
+  const id = edId || ('custom_' + Date.now());
+  const prof = {
+    id, name, mode: edMode,
+    logistics: {
+      orderKeyCol: document.getElementById('edLOK').value.trim() || '[주문번호]',
+      trackingCol: document.getElementById('edLTK').value.trim() || '[운송장번호]'
     }
-
-    saveToDisk();
-    closeEditor();
-    renderProfileTable();
-    populateSelect();
-    alert(`✅ "${name}" 프로필이 ${editingId ? '수정' : '추가'}되었습니다.`);
-}
-
-// ─────────────────────────────────────────────────────────
-// 7. 내보내기 / 가져오기
-// ─────────────────────────────────────────────────────────
-function exportProfiles() {
-    const json = JSON.stringify(profiles, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = '송장매핑_프로필_' + new Date().toISOString().slice(0, 10) + '.json';
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-function importProfiles(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const r = new FileReader();
-    r.onload = ev => {
-        try {
-            const imported = JSON.parse(ev.target.result);
-            if (!Array.isArray(imported)) throw new Error('올바른 형식이 아닙니다.');
-            const merge = confirm(`${imported.length}개 프로필을 가져옵니다.\n\n확인 → 기존에 추가\n취소 → 전체 교체`);
-            if (merge) {
-                imported.forEach(imp => {
-                    const idx = profiles.findIndex(p => p.id === imp.id);
-                    if (idx >= 0) profiles[idx] = imp; else profiles.push(imp);
-                });
-            } else {
-                profiles = imported;
-            }
-            saveToDisk();
-            renderProfileTable();
-            populateSelect();
-            alert('✅ 프로필을 성공적으로 가져왔습니다.');
-        } catch(err) { alert('가져오기 실패: ' + err.message); }
+  };
+  if (edMode === 'fill') {
+    prof.fill = {
+      headerRow: parseInt(document.getElementById('edFHR').value) || 1,
+      orderKeyCol: document.getElementById('edFOK').value.trim(),
+      fillCols: collectFCols()
     };
-    r.readAsText(file);
-    e.target.value = '';
+  } else {
+    prof.generate = {
+      dlHeaderRow: parseInt(document.getElementById('edGHR').value) || 1,
+      dlOrderKeyCol: document.getElementById('edGOK').value.trim(),
+      outputCols: collectGCols()
+    };
+  }
+  if (BUILTINS.find(b => b.id === id)) prof._mod = true;
+
+  const idx = profiles.findIndex(p => p.id === id);
+  if (idx >= 0) profiles[idx] = prof;
+  else profiles.push(prof);
+  persistCustom();
+  closeEd();
+  renderList();
+  if (selId === id) selectProf(id);
 }
 
-// ─────────────────────────────────────────────────────────
-// 8. 초기화
-// ─────────────────────────────────────────────────────────
-loadProfiles();
-populateSelect();
+function delProfile() {
+  if (!edId) return;
+  const p = getProf(edId);
+  const isBuiltin = !!BUILTINS.find(b => b.id === edId);
+  if (isBuiltin) {
+    if (!p || !p._mod) return;
+    if (!confirm(`'${p.name}'를 기본값으로 복원하시겠습니까?`)) return;
+    const orig = JSON.parse(JSON.stringify(BUILTINS.find(b => b.id === edId)));
+    const idx = profiles.findIndex(x => x.id === edId);
+    profiles[idx] = orig;
+  } else {
+    if (!confirm(`'${p?.name}' 프로필을 삭제하시겠습니까?`)) return;
+    profiles = profiles.filter(x => x.id !== edId);
+  }
+  persistCustom();
+  if (selId === edId) {
+    selId = null;
+    document.getElementById('noSelMsg').style.display = 'block';
+    document.getElementById('workArea').style.display = 'none';
+  }
+  closeEd();
+  renderList();
+}
+
+function closeEd() {
+  document.getElementById('edModal').style.display = 'none';
+  edId = null;
+}
+
+// ============================================================
+// EXPORT / IMPORT
+// ============================================================
+function exportProfiles() {
+  const blob = new Blob([JSON.stringify(profiles, null, 2)], {type:'application/json'});
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(blob), download: '송장매핑_프로필.json'
+  });
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importProfiles(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const arr = JSON.parse(ev.target.result);
+      if (!Array.isArray(arr)) throw new Error('프로필 배열 형식이 아닙니다.');
+      arr.forEach(p => {
+        const idx = profiles.findIndex(x => x.id === p.id);
+        if (idx >= 0) profiles[idx] = p; else profiles.push(p);
+      });
+      persistCustom();
+      renderList();
+      alert(`${arr.length}개 프로필을 가져왔습니다.`);
+    } catch(err) { alert('가져오기 실패: ' + err.message); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+}
+
+// ============================================================
+init();
 </script>
 </body>
 </html>
