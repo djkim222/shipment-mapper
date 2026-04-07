@@ -12,7 +12,6 @@ header{background:#1a237e;color:#fff;padding:10px 18px;display:flex;align-items:
 header h1{font-size:16px;font-weight:bold}
 .ver{background:rgba(255,255,255,.25);border-radius:10px;padding:2px 9px;font-size:11px}
 .layout{display:flex;flex:1;overflow:hidden}
-
 /* sidebar */
 #sidebar{width:210px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
 .sb-title{padding:9px 12px;font-size:11px;font-weight:bold;color:#666;background:#f7f7f7;border-bottom:1px solid #eee;text-transform:uppercase;letter-spacing:.3px}
@@ -30,14 +29,12 @@ header h1{font-size:16px;font-weight:bold}
 .sb-foot button,.sb-foot label{display:block;width:100%;text-align:center;padding:6px;font-size:12px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#fff;color:#444}
 .sb-foot button:hover,.sb-foot label:hover{background:#f0f0f0}
 #importFI{display:none}
-
 /* main */
 #content{flex:1;padding:14px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:11px}
 .no-sel{text-align:center;padding:60px 20px;color:#bbb}
 .no-sel .big{font-size:36px;margin-bottom:10px}
 .no-sel p{font-size:15px;color:#aaa}
 #workArea{display:flex;flex-direction:column;gap:11px}
-
 /* profile info */
 #profInfo{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:11px 14px}
 .pi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
@@ -49,7 +46,6 @@ header h1{font-size:16px;font-weight:bold}
 .il{color:#999}
 .iv{font-weight:bold}
 .warn-tag{font-size:11px;color:#e65100;font-weight:bold;background:#fff3e0;padding:2px 8px;border-radius:8px}
-
 /* drop zones */
 .fzones{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .dz{background:#fff;border:2px dashed #ccc;border-radius:8px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .15s}
@@ -60,19 +56,15 @@ header h1{font-size:16px;font-weight:bold}
 .dz .zs{font-size:11px;color:#999;margin-top:3px}
 .dz .zfn{font-size:12px;color:#2e7d32;font-weight:bold;margin-top:6px;word-break:break-all}
 .dz input[type=file]{display:none}
-
 /* options */
 .opts{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:9px 14px;display:flex;align-items:center;gap:18px}
 .tgl{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px}
 .tgl input{width:16px;height:16px;cursor:pointer}
-
 /* error */
 #errMsg{background:#ffebee;border:1px solid #ef9a9a;border-radius:6px;padding:9px 14px;color:#c62828;font-size:13px;display:none;white-space:pre-wrap}
-
 /* run button */
 #runBtn{padding:12px;background:#1a237e;color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;font-weight:bold;width:100%}
 #runBtn:hover{background:#283593}
-
 /* results */
 #results{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:13px 15px;display:none}
 .sec-title{font-size:11px;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
@@ -84,11 +76,9 @@ header h1{font-size:16px;font-weight:bold}
 .sv{font-size:24px;font-weight:bold}
 .sl{font-size:11px;color:#666;margin-top:2px}
 .rmsg{font-size:12px;color:#666;margin-top:5px}
-
 /* download btn */
 #dlBtn{padding:11px;background:#2e7d32;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer;font-weight:bold;width:100%;display:none}
 #dlBtn:hover{background:#388e3c}
-
 /* modal */
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-box{background:#fff;border-radius:8px;width:100%;max-width:730px;max-height:92vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);display:flex;flex-direction:column}
@@ -122,13 +112,11 @@ header h1{font-size:16px;font-weight:bold}
 </style>
 </head>
 <body>
-
 <header>
   <span style="font-size:22px">📦</span>
   <h1> 거래처 송장 업로드 파일 생성기 </h1>
   <span class="ver">v2.0</span>
 </header>
-
 <div class="layout">
   <aside id="sidebar">
     <div class="sb-title">거래처 프로필</div>
@@ -140,7 +128,6 @@ header h1{font-size:16px;font-weight:bold}
       <input type="file" id="importFI" accept=".json" onchange="importProfiles(event)">
     </div>
   </aside>
-
   <main id="content">
     <div id="noSelMsg" class="no-sel">
       <div class="big">👈</div>
@@ -148,7 +135,6 @@ header h1{font-size:16px;font-weight:bold}
       <br>
       <small>왼쪽 목록에서 거래처를 클릭하면 매핑 작업을 시작할 수 있습니다.</small>
     </div>
-
     <div id="workArea" style="display:none">
       <div id="profInfo">
         <div class="pi-top">
@@ -157,7 +143,6 @@ header h1{font-size:16px;font-weight:bold}
         </div>
         <div class="info-row" id="profInfoBody"></div>
       </div>
-
       <div class="fzones">
         <div id="logZone" class="dz"
           ondragover="event.preventDefault();this.classList.add('drag-over')"
@@ -182,28 +167,23 @@ header h1{font-size:16px;font-weight:bold}
           <input type="file" id="dlInput" accept=".xlsx,.xls" onchange="handleFI(event,'dl')">
         </div>
       </div>
-
       <div class="opts">
         <label class="tgl">
           <input type="checkbox" id="rmUnmapped" checked>
           미매핑 주문 결과에서 제거 (아직 출고 안 된 주문 제외)
         </label>
       </div>
-
       <div id="errMsg"></div>
       <button id="runBtn" onclick="runProcess()">🚀 매핑 실행</button>
-
       <div id="results">
         <div class="sec-title">처리 결과</div>
         <div class="stats" id="statsBox"></div>
         <div class="rmsg" id="rmsgEl"></div>
       </div>
-
       <button id="dlBtn" onclick="doDownload()">📥 결과 파일 다운로드</button>
     </div>
   </main>
 </div>
-
 <!-- Profile Editor Modal -->
 <div id="edModal" class="modal-ov" onclick="if(event.target===this)closeEd()">
   <div class="modal-box">
@@ -216,7 +196,6 @@ header h1{font-size:16px;font-weight:bold}
         <label>거래처 이름 *</label>
         <input type="text" id="edName" placeholder="예: 카카오선물하기">
       </div>
-
       <div class="fg">
         <label>처리 방식 *</label>
         <div class="mtabs">
@@ -225,7 +204,6 @@ header h1{font-size:16px;font-weight:bold}
         </div>
         <div class="ht" id="modeHt"></div>
       </div>
-
       <div class="fr2">
         <div class="fg">
           <label>물류파일 — 주문번호 열 이름</label>
@@ -236,7 +214,6 @@ header h1{font-size:16px;font-weight:bold}
           <input type="text" id="edLTK" placeholder="[운송장번호]">
         </div>
       </div>
-
       <!-- Fill settings -->
       <div id="fillSec">
         <div class="fr2" style="margin-bottom:10px">
@@ -259,7 +236,6 @@ header h1{font-size:16px;font-weight:bold}
           <button class="addcol" onclick="addFCol()">+ 열 추가</button>
         </div>
       </div>
-
       <!-- Generate settings -->
       <div id="genSec" style="display:none">
         <div class="fr2" style="margin-bottom:10px">
@@ -292,10 +268,9 @@ header h1{font-size:16px;font-weight:bold}
     </div>
   </div>
 </div>
-
 <script>
 // ============================================================
-// BUILT-IN PROFILES (13 marketplaces)
+// BUILT-IN PROFILES (14 marketplaces)
 // ============================================================
 const BUILTINS = [
   // ── FILL MODE ──
@@ -303,12 +278,10 @@ const BUILTINS = [
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'[운송장번호]'},
     fill:{headerRow:1,orderKeyCol:'주문번호',
       fillCols:[{col:'택배사코드',source:'fixed',value:'8'},{col:'송장번호',source:'tracking'}]}},
-
   {id:'wconcept',name:'W컨셉',builtIn:true,mode:'fill',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     fill:{headerRow:7,orderKeyCol:'주문번호',
       fillCols:[{col:'송장번호',source:'tracking'},{col:'택배사코드',source:'fixed',value:'6'}]}},
-
   {id:'kt_alpha',name:'KT알파쇼핑',builtIn:true,mode:'fill',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     fill:{headerRow:3,orderKeyCol:'주문번호',
@@ -316,7 +289,6 @@ const BUILTINS = [
         {col:'택배사코드',source:'fixed',value:'⚠️확인필요'},
         {col:'택배사명',source:'fixed',value:'한진택배'},
         {col:'운송장번호',source:'tracking'}]}},
-
   {id:'cm29',name:'29CM',builtIn:true,mode:'fill',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     fill:{headerRow:1,orderKeyCol:'주문번호',
@@ -324,7 +296,10 @@ const BUILTINS = [
         {col:'택배사코드',source:'fixed',value:'⚠️확인필요'},
         {col:'택배사명',source:'fixed',value:'한진택배'},
         {col:'운송장번호',source:'tracking'}]}},
-
+  {id:'coworkers',name:'코워커스',builtIn:true,mode:'fill',
+    logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
+    fill:{headerRow:1,orderKeyCol:'[주문번호]',
+      fillCols:[{col:'송장번호',source:'tracking'}]}},
   // ── GENERATE MODE ──
   {id:'smartstore',name:'네이버 스마트스토어',builtIn:true,mode:'generate',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
@@ -334,14 +309,12 @@ const BUILTINS = [
         {header:'배송방법',source:'fixed',value:'택배,등기,소포'},
         {header:'택배사',source:'fixed',value:'한진택배'},
         {header:'송장번호',source:'tracking'}]}},
-
   {id:'zigzag',name:'지그재그',builtIn:true,mode:'generate',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'상품주문번호',
       outputCols:[
         {header:'상품주문번호',source:'download',fromCol:'상품주문번호'},
         {header:'송장번호',source:'tracking'}]}},
-
   {id:'ejaneru',name:'이제너두',builtIn:true,mode:'generate',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
@@ -351,7 +324,6 @@ const BUILTINS = [
         {header:'택배사코드',source:'fixed',value:'60'},
         {header:'택배사',source:'fixed',value:'한진택배'},
         {header:'송장번호',source:'tracking'}]}},
-
   {id:'ssg',name:'신세계SSG',builtIn:true,mode:'generate',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'배송번호',
@@ -362,7 +334,6 @@ const BUILTINS = [
         {header:'택배사',source:'fixed',value:'0000033071'},
         {header:'송장번호',source:'tracking'},
         {header:'중량정보',source:'empty'}]}},
-
   {id:'hyundai',name:'현대홈쇼핑',builtIn:true,mode:'generate',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
@@ -371,7 +342,6 @@ const BUILTINS = [
         {header:'주문순번',source:'download',fromCol:'주문순번'},
         {header:'택배사',source:'fixed',value:'⚠️확인필요'},
         {header:'운송장번호',source:'tracking'}]}},
-
   {id:'samsung',name:'삼성카드',builtIn:true,mode:'generate',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
@@ -380,7 +350,6 @@ const BUILTINS = [
         {header:'배송번호',source:'download',fromCol:'배송번호'},
         {header:'택배사명',source:'fixed',value:'한진택배'},
         {header:'송장번호',source:'tracking'}]}},
-
   {id:'eziwell',name:'이지웰',builtIn:true,mode:'generate',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
@@ -390,7 +359,6 @@ const BUILTINS = [
         {header:'택배사명',source:'fixed',value:'한진택배'},
         {header:'송장번호',source:'tracking'},
         {header:'협력사코드',source:'fixed',value:'10055576'}]}},
-
   {id:'cjonst',name:'CJ온스타일',builtIn:true,mode:'generate',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호',
@@ -399,7 +367,6 @@ const BUILTINS = [
         {header:'주문번호',source:'download',fromCol:'주문번호'},
         {header:'택배사',source:'fixed',value:'⚠️확인필요'},
         {header:'운송장번호',source:'tracking'}]}},
-
   {id:'sabang',name:'사방넷',builtIn:true,mode:'generate',
     logistics:{orderKeyCol:'[주문번호]',trackingCol:'송장번호'},
     generate:{dlHeaderRow:1,dlOrderKeyCol:'주문번호(사방넷)',
@@ -410,7 +377,6 @@ const BUILTINS = [
         {header:'배송희망일',source:'empty'},
         {header:'사방넷택배사코드',source:'fixed',value:'⚠️확인필요'}]}}
 ];
-
 // ============================================================
 // STATE
 // ============================================================
@@ -422,7 +388,6 @@ let resultWb = null;
 let resultFn = null;
 let edMode = 'fill';
 let edId = null;
-
 // ============================================================
 // INIT
 // ============================================================
@@ -430,7 +395,6 @@ function init() {
   loadProfiles();
   renderList();
 }
-
 // ============================================================
 // PROFILE MANAGEMENT
 // ============================================================
@@ -445,14 +409,11 @@ function loadProfiles() {
     }
   } catch(e) {}
 }
-
 function persistCustom() {
   const custom = profiles.filter(p => !BUILTINS.find(b => b.id === p.id) || p._mod);
   localStorage.setItem('customProfiles', JSON.stringify(custom));
 }
-
 function getProf(id) { return profiles.find(p => p.id === id); }
-
 function renderList() {
   const el = document.getElementById('profileList');
   el.innerHTML = '';
@@ -467,21 +428,16 @@ function renderList() {
     el.appendChild(d);
   });
 }
-
 function selectProf(id) {
   selId = id;
   renderList();
   const p = getProf(id);
   if (!p) return;
-
   document.getElementById('noSelMsg').style.display = 'none';
   document.getElementById('workArea').style.display = 'flex';
-
   document.getElementById('profName').textContent = p.name;
-
   let html = '';
   html += `<div class="ii"><span class="il">방식:</span><span class="iv">${p.mode==='fill'?'Fill 모드':'Generate 모드'}</span></div>`;
-
   if (p.mode === 'fill') {
     const f = p.fill;
     html += `<div class="ii"><span class="il">헤더 행:</span><span class="iv">${f.headerRow}행</span></div>`;
@@ -501,7 +457,6 @@ function selectProf(id) {
     p.mode==='fill' ? '주문내역 다운로드 파일 (업로드 파일과 동일 형식)' : '주문내역 다운로드 파일';
   clearResults();
 }
-
 // ============================================================
 // FILE HANDLING
 // ============================================================
@@ -545,7 +500,6 @@ function readXlsx(file) {
     r.readAsArrayBuffer(file);
   });
 }
-
 // ============================================================
 // UTILITIES
 // ============================================================
@@ -571,7 +525,6 @@ function clearResults() {
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 // ============================================================
 // PROCESSING
 // ============================================================
@@ -592,35 +545,29 @@ function buildTrackMap(logRows, prof) {
   }
   return map;
 }
-
 function runProcess() {
   clearResults();
   if (!selId) { showErr('거래처 프로필을 선택하세요.'); return; }
   if (!logData) { showErr('물류센터 송장 파일을 먼저 올려주세요.'); return; }
   if (!dlFileData) { showErr('거래처 주문내역 파일을 먼저 올려주세요.'); return; }
-
   const prof = getProf(selId);
   if (!prof) return;
-
   // Check ⚠️ placeholders
   let warns = [];
   if (prof.mode === 'fill')
     prof.fill.fillCols.forEach(c => { if (c.source==='fixed' && String(c.value).includes('⚠️')) warns.push(c.col); });
   else
     prof.generate.outputCols.forEach(c => { if (c.source==='fixed' && String(c.value).includes('⚠️')) warns.push(c.header); });
-
   if (warns.length) {
     const go = confirm(
       `⚠️ 다음 항목의 코드가 아직 설정되지 않았습니다:\n  ${warns.join(', ')}\n\n✏️ [프로필 수정] 버튼에서 정확한 코드를 입력하는 것을 권장합니다.\n\n지금 바로 진행하시겠습니까? (⚠️확인필요 문자가 그대로 입력됩니다)`);
     if (!go) return;
   }
-
   const rm = document.getElementById('rmUnmapped').checked;
   try {
     let res;
     if (prof.mode === 'fill') res = doFill(prof, logData.rows, dlFileData.rows, rm);
     else res = doGenerate(prof, logData.rows, dlFileData.rows, rm);
-
     const ws = XLSX.utils.aoa_to_sheet(res.rows);
     resultWb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(resultWb, ws, 'Sheet1');
@@ -628,31 +575,26 @@ function runProcess() {
     showStats(res);
   } catch(e) { showErr(e.message); }
 }
-
 function doFill(prof, logRows, dlRows, rm) {
   const p = prof.fill;
   const hIdx = p.headerRow - 1;
   if (hIdx >= dlRows.length)
     throw new Error(`헤더 행(${p.headerRow}행)이 파일 범위를 벗어납니다. 파일 행 수: ${dlRows.length}`);
-
   const tmap = buildTrackMap(logRows, prof);
   const hdr = dlRows[hIdx];
   const oIdx = colIdx(hdr, p.orderKeyCol);
   if (oIdx < 0)
     throw new Error(`다운로드 파일에서 주문번호 열 '${p.orderKeyCol}'을 찾을 수 없습니다.\n파일 헤더(${p.headerRow}행): ${hdr.filter(h=>h).join(', ')}`);
-
   const fcols = p.fillCols.map(fc => {
     const ci = colIdx(hdr, fc.col);
     if (ci < 0)
       throw new Error(`다운로드 파일에서 채울 열 '${fc.col}'을 찾을 수 없습니다.\n파일 헤더: ${hdr.filter(h=>h).join(', ')}`);
     return {...fc, ci};
   });
-
   const pre = dlRows.slice(0, hIdx);  // W컨셉 등 헤더 위 설명 행 보존
   const data = dlRows.slice(hIdx + 1);
   let mapped=0, unmapped=0;
   const out = [];
-
   for (const row of data) {
     if (row.every(c => c===''||c===null||c===undefined)) continue;
     const ok = String(row[oIdx]??'').trim();
@@ -673,19 +615,16 @@ function doFill(prof, logRows, dlRows, rm) {
   }
   return {rows:[...pre, hdr, ...out], mapped, unmapped, total:mapped+unmapped};
 }
-
 function doGenerate(prof, logRows, dlRows, rm) {
   const p = prof.generate;
   const hIdx = p.dlHeaderRow - 1;
   if (hIdx >= dlRows.length)
     throw new Error(`다운로드 파일 헤더 행(${p.dlHeaderRow}행)이 범위를 벗어납니다.`);
-
   const tmap = buildTrackMap(logRows, prof);
   const dlHdr = dlRows[hIdx];
   const oIdx = colIdx(dlHdr, p.dlOrderKeyCol);
   if (oIdx < 0)
     throw new Error(`다운로드 파일에서 주문번호 열 '${p.dlOrderKeyCol}'을 찾을 수 없습니다.\n파일 헤더(${p.dlHeaderRow}행): ${dlHdr.filter(h=>h).join(', ')}`);
-
   const cols = p.outputCols.map(oc => {
     let dci = -1;
     if (oc.source === 'download') {
@@ -695,12 +634,10 @@ function doGenerate(prof, logRows, dlRows, rm) {
     }
     return {...oc, dci};
   });
-
   const outHdr = p.outputCols.map(c => c.header);
   const data = dlRows.slice(hIdx + 1);
   let mapped=0, unmapped=0, rn=1;
   const rows = [outHdr];
-
   for (const row of data) {
     if (row.every(c => c===''||c===null||c===undefined)) continue;
     const ok = String(row[oIdx]??'').trim();
@@ -732,7 +669,6 @@ function doGenerate(prof, logRows, dlRows, rm) {
   }
   return {rows, mapped, unmapped, total:mapped+unmapped};
 }
-
 function showStats(res) {
   document.getElementById('statsBox').innerHTML = `
     <div class="sb tot"><div class="sv">${res.total}</div><div class="sl">전체 주문</div></div>
@@ -746,11 +682,9 @@ function showStats(res) {
   document.getElementById('results').style.display = 'block';
   document.getElementById('dlBtn').style.display = 'block';
 }
-
 function doDownload() {
   if (resultWb && resultFn) XLSX.writeFile(resultWb, resultFn);
 }
-
 // ============================================================
 // PROFILE EDITOR
 // ============================================================
@@ -767,34 +701,28 @@ function newProfile() {
         {header:'송장번호',source:'tracking'}]}
   });
 }
-
 function editProfile(id) {
   edId = id;
   const p = getProf(id);
   if (p) openEd(JSON.parse(JSON.stringify(p)));
 }
-
 function openEd(p) {
   document.getElementById('edTitle').textContent = edId ? '프로필 편집' : '새 프로필 추가';
   document.getElementById('edName').value = p.name || '';
   document.getElementById('edLOK').value = p.logistics?.orderKeyCol || '[주문번호]';
   document.getElementById('edLTK').value = p.logistics?.trackingCol || '[운송장번호]';
-
   edMode = p.mode || 'fill';
   updateModeTabs();
-
   // Fill settings
   const f = p.fill || {};
   document.getElementById('edFHR').value = f.headerRow || 1;
   document.getElementById('edFOK').value = f.orderKeyCol || '';
   renderFCols(f.fillCols || []);
-
   // Generate settings
   const g = p.generate || {};
   document.getElementById('edGHR').value = g.dlHeaderRow || 1;
   document.getElementById('edGOK').value = g.dlOrderKeyCol || '';
   renderGCols(g.outputCols || []);
-
   // Delete button
   const delBtn = document.getElementById('edDelBtn');
   if (edId) {
@@ -806,10 +734,8 @@ function openEd(p) {
   } else {
     delBtn.style.display = 'none';
   }
-
   document.getElementById('edModal').style.display = 'flex';
 }
-
 function switchMode(m) {
   edMode = m;
   updateModeTabs();
@@ -823,7 +749,6 @@ function updateModeTabs() {
     ? 'Fill 모드: 다운로드 파일 구조를 그대로 유지하면서 송장/택배사 열만 채웁니다. (카카오, W컨셉, KT알파, 29CM 등)'
     : 'Generate 모드: 새로운 업로드 파일을 생성합니다. 출력 열을 자유롭게 구성할 수 있습니다. (스마트스토어, 지그재그, 이제너두 등)';
 }
-
 // Fill cols
 function renderFCols(cols) {
   const tb = document.getElementById('fillCols');
@@ -846,7 +771,6 @@ function appendFCol(c) {
   tb.appendChild(tr);
 }
 function addFCol() { appendFCol({}); }
-
 // Generate cols
 function renderGCols(cols) {
   const tb = document.getElementById('genCols');
@@ -878,7 +802,6 @@ function updateGRow(sel) {
   tr.querySelector('.gn').style.display = ['tracking','empty','rownum'].includes(v) ? '' : 'none';
 }
 function addGCol() { appendGCol({}); }
-
 function collectFCols() {
   return Array.from(document.getElementById('fillCols').rows).map(tr => {
     const els = tr.querySelectorAll('input,select');
@@ -901,7 +824,6 @@ function collectGCols() {
     return oc;
   }).filter(Boolean);
 }
-
 function saveProfile() {
   const name = document.getElementById('edName').value.trim();
   if (!name) { alert('거래처 이름을 입력하세요.'); return; }
@@ -927,7 +849,6 @@ function saveProfile() {
     };
   }
   if (BUILTINS.find(b => b.id === id)) prof._mod = true;
-
   const idx = profiles.findIndex(p => p.id === id);
   if (idx >= 0) profiles[idx] = prof;
   else profiles.push(prof);
@@ -936,7 +857,6 @@ function saveProfile() {
   renderList();
   if (selId === id) selectProf(id);
 }
-
 function delProfile() {
   if (!edId) return;
   const p = getProf(edId);
@@ -960,12 +880,10 @@ function delProfile() {
   closeEd();
   renderList();
 }
-
 function closeEd() {
   document.getElementById('edModal').style.display = 'none';
   edId = null;
 }
-
 // ============================================================
 // EXPORT / IMPORT
 // ============================================================
@@ -995,7 +913,6 @@ function importProfiles(e) {
   r.readAsText(f);
   e.target.value = '';
 }
-
 // ============================================================
 init();
 </script>
