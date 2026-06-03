@@ -538,6 +538,26 @@ function readXlsx(file) {
       try {
         const wb = XLSX.read(e.target.result, {type:'array', cellDates:false});
         const ws = wb.Sheets[wb.SheetNames[0]];
+        // 일부 파일(이지웰 등)은 서버 버그로 !ref 범위가 실제 데이터보다 짧게 기록됨.
+        // 실제 존재하는 모든 셀을 스캔해 !ref를 보정한 뒤 읽는다.
+        const allCells = Object.keys(ws).filter(k => !k.startsWith('!'));
+        if (allCells.length > 0) {
+          let maxR = 0, maxC = 0;
+          allCells.forEach(addr => {
+            try {
+              const {r: cr, c: cc} = XLSX.utils.decode_cell(addr);
+              if (cr > maxR) maxR = cr;
+              if (cc > maxC) maxC = cc;
+            } catch(_) {}
+          });
+          const cur = ws['!ref'] ? XLSX.utils.decode_range(ws['!ref']) : {s:{r:0,c:0},e:{r:0,c:0}};
+          if (maxR > cur.e.r || maxC > cur.e.c) {
+            ws['!ref'] = XLSX.utils.encode_range({
+              s: cur.s,
+              e: {r: Math.max(maxR, cur.e.r), c: Math.max(maxC, cur.e.c)}
+            });
+          }
+        }
         res(XLSX.utils.sheet_to_json(ws, {header:1, defval:''}));
       } catch(err) { rej(err); }
     };
